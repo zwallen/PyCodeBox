@@ -45,7 +45,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.0 (current)
+Version 0.1.1 (current)
+* Updated package name to `pycodebox` to avoid conflicts with existing packages on PyPI
+* Successful upload to PyPI, so package can now be installed via `pip install pycodebox`
+
+Version 0.1.0
 * Initial release
 * Basic data styling, transformation, statistical analysis, and plotting functions
 
