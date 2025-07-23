@@ -2,7 +2,7 @@
 
 [![Python Tests](https://github.com/zwallen/PyCodeBox/actions/workflows/python-tests.yml/badge.svg)](https://github.com/zwallen/PyCodeBox/actions/workflows/python-tests.yml)
 [![codecov](https://codecov.io/gh/zwallen/PyCodeBox/branch/master/graph/badge.svg)](https://codecov.io/gh/zwallen/PyCodeBox)
-
+[![PyPI version](https://img.shields.io/pypi/v/PyCodeBox.svg)](https://pypi.org/project/PyCodeBox/)
 
 A personal collection of Python convenience functions for styling data displays and outputs, transforming and organizing data, performing statistical analyses, and other commonly performed actions in data science projects.
 
