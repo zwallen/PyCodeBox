@@ -6,13 +6,13 @@
 
 A personal collection of Python convenience functions for styling data displays and outputs, transforming and organizing data, performing statistical analyses, and other commonly performed actions in data science projects.
 
-The package can be installed from PyPI:
+Releases of the package can be installed from PyPI:
 
 ```bash
 pip install pycodebox
 ```
 
-or GitHub:
+or development versions (which may or may not line up with official releases) from GitHub:
 
 ```bash
 pip install git+https://github.com/zwallen/PyCodeBox.git
