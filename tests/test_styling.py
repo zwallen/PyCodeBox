@@ -1,5 +1,5 @@
 import pandas as pd
-from pytoolbox import export_styled_xlsx_w_2_headers, display_styled_table_w_2_headers
+from pythontoolbox import export_styled_xlsx_w_2_headers, display_styled_table_w_2_headers
 
 
 def test_export_styled_xlsx(tmp_path):

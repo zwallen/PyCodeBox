@@ -1,5 +1,5 @@
 import pandas as pd
-from pytoolbox import (
+from pythontoolbox import (
   stratified_barplot,
   stratified_violin_boxplot,
   stratified_coef_w_ci,

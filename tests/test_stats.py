@@ -1,5 +1,5 @@
 import pandas as pd
-from pytoolbox import fisher_exact_by_strata, linear_reg_by_strata
+from pythontoolbox import fisher_exact_by_strata, linear_reg_by_strata
 
 
 def test_fisher_exact_by_strata():

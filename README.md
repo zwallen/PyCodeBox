@@ -1,7 +1,7 @@
-# PyToolBox
+# PythonToolBox
 
-[![Python Tests](https://github.com/zwallen/PyToolBox/actions/workflows/python-tests.yml/badge.svg)](https://github.com/zwallen/PyToolBox/actions/workflows/python-tests.yml)
-[![codecov](https://codecov.io/gh/zwallen/PyToolBox/branch/master/graph/badge.svg)](https://codecov.io/gh/zwallen/PyToolBox)
+[![Python Tests](https://github.com/zwallen/PythonToolBox/actions/workflows/python-tests.yml/badge.svg)](https://github.com/zwallen/PythonToolBox/actions/workflows/python-tests.yml)
+[![codecov](https://codecov.io/gh/zwallen/PythonToolBox/branch/master/graph/badge.svg)](https://codecov.io/gh/zwallen/PythonToolBox)
 
 
 A personal collection of Python convenience functions for styling data displays and outputs, transforming and organizing data, performing statistical analyses, and other commonly performed actions in data science projects.
@@ -9,13 +9,13 @@ A personal collection of Python convenience functions for styling data displays 
 The package can be installed using the following syntax:
 
 ```bash
-pip install .
+pip install pythontoolbox
 ```
 
 And imported in your Python scripts as follows:
 
 ```python
-from pytoolbox import export_styled_xlsx_w_2_headers, fisher_exact_by_strata
+from pythontoolbox import export_styled_xlsx_w_2_headers, fisher_exact_by_strata
 ```
 
 ## Important Disclaimer
