@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: PyToolBox
+Version: 0.1.0
+Summary: A personal collection of convenience functions for styling data 
+Author: Zachary D Wallen
+Requires-Python: >=3.7
+License-File: LICENSE
+Requires-Dist: IPython
+Requires-Dist: numpy
+Requires-Dist: openpyxl
+Requires-Dist: pandas
+Requires-Dist: plotnine
+Requires-Dist: scipy
+Dynamic: author
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

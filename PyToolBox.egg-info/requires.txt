@@ -1,0 +1,6 @@
+IPython
+numpy
+openpyxl
+pandas
+plotnine
+scipy
