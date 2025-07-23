@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-  name='PythonToolBox',
+  name='PyCodeBox',
   version='0.1.0',
   author='Zachary D Wallen',
   description="""A personal collection of convenience functions for styling data 

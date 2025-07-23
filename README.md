@@ -1,21 +1,27 @@
-# PythonToolBox
+# PyCodeBox
 
-[![Python Tests](https://github.com/zwallen/PythonToolBox/actions/workflows/python-tests.yml/badge.svg)](https://github.com/zwallen/PythonToolBox/actions/workflows/python-tests.yml)
-[![codecov](https://codecov.io/gh/zwallen/PythonToolBox/branch/master/graph/badge.svg)](https://codecov.io/gh/zwallen/PythonToolBox)
+[![Python Tests](https://github.com/zwallen/PyCodeBox/actions/workflows/python-tests.yml/badge.svg)](https://github.com/zwallen/PyCodeBox/actions/workflows/python-tests.yml)
+[![codecov](https://codecov.io/gh/zwallen/PyCodeBox/branch/master/graph/badge.svg)](https://codecov.io/gh/zwallen/PyCodeBox)
 
 
 A personal collection of Python convenience functions for styling data displays and outputs, transforming and organizing data, performing statistical analyses, and other commonly performed actions in data science projects.
 
-The package can be installed using the following syntax:
+The package can be installed from PyPI:
 
 ```bash
-pip install pythontoolbox
+pip install pycodebox
+```
+
+or GitHub:
+
+```bash
+pip install git+https://github.com/zwallen/PyCodeBox.git
 ```
 
 And imported in your Python scripts as follows:
 
 ```python
-from pythontoolbox import export_styled_xlsx_w_2_headers, fisher_exact_by_strata
+from pycodebox import export_styled_xlsx_w_2_headers, fisher_exact_by_strata
 ```
 
 ## Important Disclaimer
