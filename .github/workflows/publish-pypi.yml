@@ -1,8 +1,8 @@
 name: Publish to PyPI
 
 on:
-  push: # Note this is unsafe behavior, but since this is a personal project, it is acceptable.
-    branches: [master]
+  release:
+    types: [published]  # Only run when a GitHub release is published
 
 jobs:
   build-and-publish:
