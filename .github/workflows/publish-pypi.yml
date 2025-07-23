@@ -3,8 +3,6 @@ name: Publish to PyPI
 on:
   push: # Note this is unsafe behavior, but since this is a personal project, it is acceptable.
     branches: [master]
-  pull_request:
-    branches: [master]
 
 jobs:
   build-and-publish:
