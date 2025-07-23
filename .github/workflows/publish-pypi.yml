@@ -1,9 +1,10 @@
 name: Publish to PyPI
 
 on:
-  push:
-    tags:
-      - 'v*'  # Only trigger on version tags like v0.1.0, v1.2.3
+  push: # Note this is unsafe behavior, but since this is a personal project, it is acceptable.
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build-and-publish:
