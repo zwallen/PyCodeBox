@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: PyCodeBox
-Version: 0.1.1
+Version: 0.1.2
 Summary: A personal collection of convenience functions for styling data 
 Author: Zachary D Wallen
 License: MIT
@@ -16,6 +16,7 @@ Requires-Dist: openpyxl
 Requires-Dist: pandas
 Requires-Dist: plotnine>=0.10.1
 Requires-Dist: scipy
+Requires-Dist: seaborn
 Dynamic: author
 Dynamic: classifier
 Dynamic: description
@@ -73,7 +74,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.1 (current)
+Version 0.1.2 (current)
+* Updated plotting functions to be more dynamic in some of the text placement
+* Updated testing of plotting functions to include both required only and full parameter testing
+
+Version 0.1.1
 * Updated package name to `pycodebox` to avoid conflicts with existing packages on PyPI
 * Successful upload to PyPI, so package can now be installed via `pip install pycodebox`
 
