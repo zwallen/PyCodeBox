@@ -45,7 +45,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.1 (current)
+Version 0.1.2 (current)
+* Updated plotting functions to be more dynamic in some of the text placement
+* Updated testing of plotting functions to include both required only and full parameter testing
+
+Version 0.1.1
 * Updated package name to `pycodebox` to avoid conflicts with existing packages on PyPI
 * Successful upload to PyPI, so package can now be installed via `pip install pycodebox`
 
