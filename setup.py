@@ -18,6 +18,7 @@ setup(
     'pandas',
     'plotnine>=0.10.1',
     'scipy',
+    'seaborn',
   ],
   classifiers=[
     'Programming Language :: Python :: 3',
