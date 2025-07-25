@@ -28,13 +28,16 @@ def export_styled_xlsx_w_2_headers(df, ws_title, filename):
   Returns:
   --------
   None
-    Saves a styled Excel file with the following features:
-    - Custom column widths (55 for first column, then alternating 5/15/20/10 pattern)
-    - Left alignment for most cells, left and center alignment for first column
-    - First two rows are bold
-    - Medium borders on top of first row, bottom of second row, and bottom of last row
-    - Thin borders above rows containing 'Total', 'N, %', or 'Mean±SD' in first column
-    - Automatic conversion of numeric strings back to numbers where possible
+    Saves a styled Excel workbook to file.
+
+  Features:
+  -------
+  - Custom column widths (55 for first column, then alternating 5/15/20/10 pattern)
+  - Left alignment for most cells, left and center alignment for first column
+  - First two rows are bold
+  - Medium borders on top of first row, bottom of second row, and bottom of last row
+  - Thin borders above rows containing 'Total', 'N, %', or 'Mean±SD' in first column
+  - Automatic conversion of numeric strings back to numbers where possible
   """
   import openpyxl
   from openpyxl.styles import Alignment, Font, Border, Side
@@ -143,14 +146,17 @@ def display_styled_table_w_2_headers(df, rows_per_page=50):
   Returns:
   --------
   None
-    Displays styled HTML tables with pagination controls and the following features:
-    - First 2 rows are bold and appear on every page
-    - Medium border under 2nd row
-    - First column cells containing 'Total', '(N, %)', or '(Mean±SD)' are bold
-    - No text wrapping
-    - Horizontally scrollable if needed
-    - Navigation buttons for page switching
-    - Quarto-compatible styling
+    Displays the styled HTML table.
+
+  Features:
+  -------
+  - First 2 rows are bold and appear on every page
+  - Medium border under 2nd row
+  - First column cells containing 'Total', '(N, %)', or '(Mean±SD)' are bold
+  - No text wrapping
+  - Horizontally scrollable if needed
+  - Navigation buttons for page switching
+  - Quarto-compatible styling
   """
   from IPython.display import display, HTML
   import math

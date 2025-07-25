@@ -37,12 +37,15 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
   Returns:
   --------
   plotnine.ggplot
-    A ggplot object containing the stratified bar plot with:
-      - Bars showing frequency distribution of `var` across `strata` categories.
-      - An 'All cases' group for comparison.
-      - Frequency percentages displayed above bars.
-      - Sample counts (N=x) displayed below x-axis.
-      - Dodged bar positioning for multiple categories.
+    A ggplot object containing the stratified bar plot.
+
+  Features:
+  --------
+  - Bars showing frequency distribution of `var` across `strata` categories.
+  - An 'All cases' group for comparison.
+  - Frequency percentages displayed above bars.
+  - Sample counts (N=x) displayed below x-axis.
+  - Dodged bar positioning for multiple categories.
 
   Notes:
   ------
@@ -146,7 +149,7 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
     fill_color = sns.color_palette('hls', n_colors=len(data[var].cat.categories))
     fill_color = [mcolors.to_hex(color) for color in fill_color]
   if xlab is None:
-    xlab = strata.capitalize().replace('_', ' ')
+    xlab = strata[0].upper() + strata[1:].replace('_', ' ')
   g = (
     ggplot(data=summ_stats)
     + aes(x=strata, y='freq', fill=var)
@@ -160,12 +163,15 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
     + geom_text(
       aes(y=-0.05, label='count_lab'),
       position=position_dodge(0.9),
-      size=12,
+      size=10,
     )
     + scale_y_continuous(
       breaks=np.linspace(0, 1, 6), labels=lambda x: [f'{v:.0%}' for v in x]
     )
-    + scale_fill_manual(name=var.capitalize().replace('_', ' '), values=fill_color)
+    + scale_fill_manual(
+      name=var[0].upper() + var[1:].replace('_', ' '),
+      values=fill_color,
+    )
     + coord_cartesian(ylim=(-0.03, 1))
     + labs(x=xlab, y='Frequency (%)')
     + guides(
@@ -199,7 +205,8 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
     The name of the categorical variable in `data` to stratify by, displayed on the
     x-axis.
   ylab : str, optional
-    The title for the y-axis, describing the numerical variable.
+    The title for the y-axis, describing the numerical variable. If not provided,
+    it defaults to the name of the `var` variable with underscores replaced by spaces.
   xlab : str, optional
     The title for the x-axis. If not provided, it defaults to the name of the `strata`
     variable with underscores replaced by spaces.
@@ -207,13 +214,16 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
   Returns:
   --------
   plotnine.ggplot
-    A ggplot object containing the stratified violin box plot with:
-      - Violin box plot showing distribution of `var` across `strata` categories as
-      data densities (violin plot) and the median + interquartile range (box plot).
-      - The mean and 95% confidence interval for each stratum displayed as a red point
-      range.
-      - An 'All cases' group for comparison.
-      - Median values displayed as text labels on the plot.
+    A ggplot object containing the stratified violin box plot.
+
+  Features:
+  -------
+  - Shows distribution of `var` across `strata` categories as data densities (violin
+    plot) and the median + interquartile range (box plot).
+  - The mean and 95% confidence interval for each stratum displayed as a red point
+    range.
+  - An 'All cases' group for comparison.
+  - Median values displayed as text labels on the plot.
 
   Notes:
   ------
@@ -278,9 +288,9 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
 
   # Generate violin boxplot
   if ylab is None:
-    ylab = var.capitalize().replace('_', ' ')
+    ylab = var[0].upper() + var[1:].replace('_', ' ')
   if xlab is None:
-    xlab = strata.capitalize().replace('_', ' ')
+    xlab = strata[0].upper() + strata[1:].replace('_', ' ')
   np.random.seed(1234)
   g = (
     ggplot(data=plot_data)
@@ -291,7 +301,7 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
     + geom_text(
       aes(
         y=plot_data[var].dropna().min()
-        - (plot_data.loc[plot_data[var] > 0, var].dropna().min() * 10),
+        - (plot_data.loc[plot_data[var] > 0, var].dropna().min() * 1.5),
         label='median_lab',
       ),
       size=12,
@@ -301,7 +311,7 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
     + coord_cartesian(
       ylim=(
         plot_data[var].dropna().min()
-        - (plot_data.loc[plot_data[var] > 0, var].dropna().min() * 10),
+        - (plot_data.loc[plot_data[var] > 0, var].dropna().min() * 1.5),
         plot_data[var].dropna().max(),
       )
     )
@@ -353,16 +363,19 @@ def stratified_coef_w_ci(
     Color specification for the points and ranges. Can be a dictionary mapping variable
     categories to colors, or a list of colors.
   xlab : str, optional
-    The title for the x-axis describing the coefficients being plotted.
+    The title for the x-axis describing the coefficients being plotted. If not provided,
+    it defaults to the name of the `coef` variable with underscores replaced by spaces
 
   Returns:
   --------
   plotnine.ggplot
-    A ggplot object containing the coefficient plot with:
-      - Coefficients displayed as points with error bars representing confidence
-      intervals.
-      - An 'All cases' group for comparison.
-      - P-values displayed as text labels on the plot if provided.
+    A ggplot object containing the coefficient plot.
+
+  Features:
+  -------
+  - Coefficients displayed as points with error bars representing confidence intervals.
+  - An 'All cases' group for comparison.
+  - P-values displayed as text labels on the plot if provided.
   """
   import pandas as pd
   import seaborn as sns
@@ -426,11 +439,11 @@ def stratified_coef_w_ci(
     fill_color = sns.color_palette('hls', n_colors=len(data[var].cat.categories))
     fill_color = [mcolors.to_hex(color) for color in fill_color]
   if xlab is None:
-    xlab = strata.capitalize().replace('_', ' ')
+    xlab = coef[0].upper() + coef[1:].replace('_', ' ')
   g = (
     ggplot(data=data)
     + aes(x=coef, y=strata, color=strata)
-    + geom_vline(xintercept=(0 if data['coef'].min() < 0 else 1), linetype='dashed')
+    + geom_vline(xintercept=(0 if data[coef].min() < 0 else 1), linetype='dashed')
     + geom_errorbarh(
       aes(xmin=lower, xmax=upper),
       position=position_dodge(0.3),
@@ -439,12 +452,18 @@ def stratified_coef_w_ci(
       show_legend=False,
     )
     + geom_point(position=position_dodge(0.3), size=3)
-    + scale_fill_manual(name=strata.capitalize().replace('_', ' '), values=fill_color)
-    + scale_color_manual(name=strata.capitalize().replace('_', ' '), values=fill_color)
+    + scale_fill_manual(
+      name=strata[0].upper() + strata[1:].replace('_', ' '),
+      values=fill_color,
+    )
+    + scale_color_manual(
+      name=strata[0].upper() + strata[1:].replace('_', ' '),
+      values=fill_color,
+    )
     + facet_grid(f'{var} ~ .')
     + theme_bw()
     + theme(
-      text=element_text(size=10),
+      text=element_text(size=12),
       axis_text_y=element_blank(),
       axis_ticks_major_y=element_blank(),
       axis_title_y=element_blank(),
@@ -471,7 +490,12 @@ def stratified_coef_w_ci(
       + coord_cartesian(
         xlim=(
           data[lower].min(),
-          data[upper].max() + (data[upper].max() * 0.3),
+          data[upper].max()
+          + (
+            (data[upper].max() * 0.4)
+            if data[pvalue].min() < 0.005
+            else (data[upper].max() * 0.3)
+          ),
         )
       )
     )

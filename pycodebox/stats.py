@@ -29,11 +29,15 @@ def fisher_exact_by_strata(var, strata, data):
   Returns:
   --------
   dict
-    Returns a dictionary with each category as a key, and values containing:
-      - 'n': Number of observations in category.
-      - 'stats': Summary statistics (N, %) for category.
-      - 'coef': The estimated odds ratio from statistical testing.
-      - 'pvalue': The p-value from statistical testing.
+    A dictionary with each category as a key, and summary statistics and results from
+    Fisher's exact test as values.
+
+  Values:
+  -------
+  - 'n': Number of observations in category.
+  - 'stats': Summary statistics (N, %) for category.
+  - 'coef': The estimated odds ratio from statistical testing.
+  - 'pvalue': The p-value from statistical testing.
 
   Notes:
   ------
@@ -142,11 +146,15 @@ def linear_reg_by_strata(var, strata, data):
   Returns:
   --------
   dict
-    Returns a dictionary with each category as a key, and values containing:
-      - 'n': Number of observations in category.
-      - 'stats': Summary statistics (mean ± standard deviation) for category.
-      - 'coef': The estimated beta coefficient from statistical testing.
-      - 'pvalue': The p-value from statistical testing.
+    A dictionary with each category as a key, and summary statistics and results from
+    linear regression as values.
+
+  Values:
+  -------
+  - 'n': Number of observations in category.
+  - 'stats': Summary statistics (mean ± standard deviation) for category.
+  - 'coef': The estimated beta coefficient from statistical testing.
+  - 'pvalue': The p-value from statistical testing.
 
   Notes:
   ------
