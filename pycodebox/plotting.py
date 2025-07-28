@@ -92,21 +92,19 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
     data[strata] = pd.Categorical(data[strata])
 
   # Filter out missing values for `var`
-  plot_data = data[data[var].notna()]
-  if plot_data.empty:
+  data = data[data[var].notna()]
+  if data.empty:
     raise ValueError(
       'No data available for `var` and `strata` after filtering out missing \
       values of `var`.'
     )
 
   # Get counts for each combination of `var` and `strata`
-  strat_data = (
-    plot_data.groupby([strata, var], observed=True)[case_id].count().reset_index()
-  )
+  strat_data = data.groupby([strata, var], observed=True)[case_id].count().reset_index()
 
   # Ensure all combinations of categories are accounted for to avoid errors
   complete_combinations = pd.MultiIndex.from_product(
-    [plot_data[strata].cat.categories, plot_data[var].cat.categories],
+    [data[strata].cat.categories, data[var].cat.categories],
     names=[strata, var],
   )
   strat_data = (
@@ -114,7 +112,7 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
   )
 
   # Calculate frequencies
-  total_counts = plot_data.groupby(strata, observed=True)[case_id].count().reset_index()
+  total_counts = data.groupby(strata, observed=True)[case_id].count().reset_index()
   total_counts = dict(zip(total_counts[strata], total_counts[case_id]))
 
   strat_data['freq'] = strat_data.apply(
@@ -125,9 +123,9 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
   )
 
   # Aggregate data for all cases
-  full_data = plot_data.groupby(var, observed=True)[case_id].count().reset_index()
+  full_data = data.groupby(var, observed=True)[case_id].count().reset_index()
   full_data[strata] = 'All cases'
-  full_data['freq'] = full_data[case_id] / len(plot_data)
+  full_data['freq'] = full_data[case_id] / len(data)
 
   # Combine full and stratified data and remove any missing frequencies
   summ_stats = pd.concat([full_data, strat_data], ignore_index=True)
@@ -140,7 +138,7 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
   # Ensure `strata` categories has initial ordering
   summ_stats[strata] = pd.Categorical(
     summ_stats[strata],
-    categories=['All cases'] + list(plot_data[strata].cat.categories),
+    categories=['All cases'] + list(data[strata].cat.categories),
     ordered=True,
   )
 
@@ -151,8 +149,7 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
   if xlab is None:
     xlab = strata[0].upper() + strata[1:].replace('_', ' ')
   g = (
-    ggplot(data=summ_stats)
-    + aes(x=strata, y='freq', fill=var)
+    ggplot(summ_stats, aes(x=strata, y='freq', fill=var))
     + geom_bar(position='dodge', stat='identity', color='black')
     + geom_text(
       aes(y='freq + 0.1', label='freq_lab'),
@@ -160,11 +157,7 @@ def stratified_barplot(data, var, strata, case_id, fill_color=None, xlab=None):
       angle=90,
       size=12,
     )
-    + geom_text(
-      aes(y=-0.05, label='count_lab'),
-      position=position_dodge(0.9),
-      size=10,
-    )
+    + geom_text(aes(y=-0.05, label='count_lab'), position=position_dodge(0.9), size=10)
     + scale_y_continuous(
       breaks=np.linspace(0, 1, 6), labels=lambda x: [f'{v:.0%}' for v in x]
     )
@@ -261,27 +254,27 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
     data[strata] = pd.Categorical(data[strata])
 
   # Filter out missing values for `var`
-  plot_data = data[data[var].notna()]
-  if plot_data.empty:
+  data = data[data[var].notna()]
+  if data.empty:
     raise ValueError(
       'No data available for `var` and `strata` after filtering out missing \
       values of `var`.'
     )
 
   # Add data for an all cases group
-  plot_data = pd.concat([plot_data, plot_data])
-  plot_data[strata] = pd.Categorical(
-    plot_data[strata],
-    categories=['All cases'] + plot_data[strata].cat.categories.tolist(),
+  data = pd.concat([data, data])
+  data[strata] = pd.Categorical(
+    data[strata],
+    categories=['All cases'] + data[strata].cat.categories.tolist(),
     ordered=True,
   )
-  plot_data.loc[
-    plot_data.reset_index().index.to_numpy() >= (plot_data.shape[0] // 2),
+  data.loc[
+    data.reset_index().index.to_numpy() >= (data.shape[0] // 2),
     strata,
   ] = 'All cases'
 
   # Calculate median for each stratum of `strata`
-  summ_stats = plot_data.groupby(strata, observed=True)[var].median().reset_index()
+  summ_stats = data.groupby(strata, observed=True)[var].median().reset_index()
   summ_stats['median_lab'] = summ_stats[var].apply(
     lambda x: f'Median={int(round(x, 0))}'
   )
@@ -293,26 +286,24 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None):
     xlab = strata[0].upper() + strata[1:].replace('_', ' ')
   np.random.seed(1234)
   g = (
-    ggplot(data=plot_data)
-    + aes(y=var, x=strata)
+    ggplot(data, aes(y=var, x=strata))
     + geom_violin(scale='width', fill='lightgrey', color='black')
     + geom_boxplot(width=0.5, fill='white', color='black', outlier_size=0)
     + geom_jitter(width=0.05, color='black', size=3)
     + geom_text(
+      summ_stats,
       aes(
-        y=plot_data[var].dropna().min()
-        - (plot_data.loc[plot_data[var] > 0, var].dropna().min() * 1.5),
+        y=data[var].dropna().min()
+        - (data.loc[data[var] > 0, var].dropna().min() * 1.5),
         label='median_lab',
       ),
       size=12,
-      data=summ_stats,
     )
     + stat_summary(fun_data='mean_cl_normal', geom='pointrange', color='red', size=1)
     + coord_cartesian(
       ylim=(
-        plot_data[var].dropna().min()
-        - (plot_data.loc[plot_data[var] > 0, var].dropna().min() * 1.5),
-        plot_data[var].dropna().max(),
+        data[var].dropna().min() - (data.loc[data[var] > 0, var].dropna().min() * 1.5),
+        data[var].dropna().max(),
       )
     )
     + labs(x=xlab, y=ylab)
@@ -441,8 +432,7 @@ def stratified_coef_w_ci(
   if xlab is None:
     xlab = coef[0].upper() + coef[1:].replace('_', ' ')
   g = (
-    ggplot(data=data)
-    + aes(x=coef, y=strata, color=strata)
+    ggplot(data, aes(x=coef, y=strata, color=strata))
     + geom_vline(xintercept=(0 if data[coef].min() < 0 else 1), linetype='dashed')
     + geom_errorbarh(
       aes(xmin=lower, xmax=upper),
@@ -499,5 +489,259 @@ def stratified_coef_w_ci(
         )
       )
     )
+
+  return g
+
+
+def stratified_volcano(
+  data,
+  var,
+  strata,
+  coef,
+  pvalue,
+  pthresh=0.05,
+  top_n=None,
+  fill_color=None,
+  xlab=None,
+):
+  """
+  Creates a stratified volcano plot showing the association results between tested
+  numerical variables across different strata. Useful for when there are too many
+  variables to plot using the `stratified_coef_w_ci` function.
+
+  Parameters:
+  -----------
+  data : pandas.DataFrame
+    The DataFrame in "long" format that contains columns denoting the names of the
+    tested variables (`var`), groups tested (`strata`), coefficients (`coef`), and the
+    p-values for each coefficient (`pvalue`).
+  var : str
+    The column in `data` denoting names of tested variables to be plotted. Each variable
+    will be an independent point on the plot.
+  strata : str
+    The name of the categorical variable in `data` to stratify by. The plot will be
+    faceted by this variable.
+  coef : float
+    The column in `data` denoting the estimated coefficients for each stratum of
+    `strata` and variable of `var`.
+  pvalue : float
+    The column in `data` denoting the p-values for each coefficient.
+  pthresh : float, optional
+    The p-value threshold to use for significance. Default is 0.05.
+  top_n : float, optional
+    The top number of enriched and depleted variables to show labels. Default is to
+    show no labels.
+  fill_color : dict or list, optional
+    Color specification for the points and ranges. Can be a dictionary mapping variable
+    categories to colors, or a list of colors.
+  xlab : str, optional
+    The title for the x-axis describing the coefficients being plotted. If not provided,
+    it defaults to the name of the `coef` variable with underscores replaced by spaces
+
+  Returns:
+  --------
+  plotnine.ggplot
+    A ggplot object containing the coefficient plot.
+
+  Features:
+  -------
+  - Variables displayed as individual points plotted by their coefficient and p-value.
+  """
+  import numpy as np
+  import pandas as pd
+  import seaborn as sns
+  import matplotlib.colors as mcolors
+  from plotnine import (
+    ggplot,
+    aes,
+    geom_vline,
+    geom_hline,
+    geom_point,
+    geom_label,
+    geom_segment,
+    position_dodge,
+    scale_y_continuous,
+    scale_x_continuous,
+    scale_color_manual,
+    coord_cartesian,
+    facet_grid,
+    theme_bw,
+    theme,
+    element_text,
+    element_blank,
+    element_rect,
+    labs,
+  )
+
+  # Check `var` is numerical
+  if not (data[var].dtype.name == 'category'):
+    print(
+      'The variable supplied to `var` was not a pandas Categorical variable. \
+      Converting this variable to pandas Categorical with no specific ordering of \
+      categories.'
+    )
+    data[var] = pd.Categorical(data[var])
+
+  # Check `strata` is categorical
+  if not (data[strata].dtype.name == 'category'):
+    print(
+      'The variable supplied to `strata` was not a pandas Categorical variable. \
+      Converting this variable to pandas Categorical with no specific ordering of \
+      categories.'
+    )
+    data[strata] = pd.Categorical(data[strata])
+
+  # Check `coef`, `lower`, and `upper` are numerical
+  if data[coef].dtype.kind not in ['i', 'f']:
+    raise ValueError('The variable supplied to `coef` must be numeric.')
+  if data[pvalue].dtype.kind not in ['i', 'f']:
+    raise ValueError('The variable supplied to `pvalue` must be numeric.')
+
+  # Create enriched vs depleted column
+  if min(data[coef]) < 0:
+    data['direction'] = pd.Categorical(
+      np.where(
+        (data[coef] < 0) & (data[pvalue] < pthresh),
+        'Depleted',
+        np.where(
+          (data[coef] > 0) & (data[pvalue] < pthresh),
+          'Enriched',
+          'Not significant',
+        ),
+      )
+    )
+  else:
+    data['direction'] = pd.Categorical(
+      np.where(
+        (data[coef] < 1) & (data[pvalue] < pthresh),
+        'Depleted',
+        np.where(
+          (data[coef] > 1) & (data[pvalue] < pthresh),
+          'Enriched',
+          'Not significant',
+        ),
+      )
+    )
+
+  # Create column for labels
+  if top_n:
+    data['var_labs'] = pd.NA
+    data_sorted = data.sort_values(pvalue)
+    for stratum in data[strata].cat.categories:
+      data_subset = data_sorted[data_sorted[strata] == stratum]
+      top_enriched = list(
+        data_subset.loc[data_subset['direction'] == 'Enriched', var][0:top_n]
+      )
+      top_depleted = list(
+        data_subset.loc[data_subset['direction'] == 'Depleted', var][0:top_n]
+      )
+      data['var_labs'] = np.where(
+        data[var].isin(top_enriched + top_depleted) & (data[strata] == stratum),
+        data[var],
+        data['var_labs'],
+      )
+
+  # Create column for -log10 of the p-value
+  data['log10p'] = -np.log10(data[pvalue])
+
+  # Create jittered positions for labels (only for points that have labels)
+  if top_n:
+    np.random.seed(1234)
+    data['jitter_x'] = pd.NA
+    data['jitter_y'] = pd.NA
+
+    data.loc[
+      data['var_labs'].notna() & (data['direction'] == 'Depleted'),
+      'jitter_x',
+    ] = data.loc[
+      data['var_labs'].notna() & (data['direction'] == 'Depleted'),
+      coef,
+    ] + np.random.uniform(
+      min(data.loc[data['direction'] == 'Depleted', coef]),
+      max(data.loc[data['direction'] == 'Depleted', coef]),
+      size=len(data[data['var_labs'].notna() & (data['direction'] == 'Depleted')]),
+    )
+
+    data.loc[
+      data['var_labs'].notna() & (data['direction'] == 'Enriched'),
+      'jitter_x',
+    ] = data.loc[
+      data['var_labs'].notna() & (data['direction'] == 'Enriched'),
+      coef,
+    ] + np.random.uniform(
+      min(data.loc[data['direction'] == 'Enriched', coef]),
+      max(data.loc[data['direction'] == 'Enriched', coef]),
+      size=len(data[data['var_labs'].notna() & (data['direction'] == 'Enriched')]),
+    )
+
+    data.loc[data['var_labs'].notna(), 'jitter_y'] = data.loc[
+      data['var_labs'].notna(), 'log10p'
+    ] + np.random.uniform(
+      min(data['log10p']),
+      max(data['log10p']),
+      size=len(data[data['var_labs'].notna()]),
+    )
+
+    data['jitter_x'] = pd.to_numeric(data['jitter_x'])
+    data['jitter_y'] = pd.to_numeric(data['jitter_y'])
+
+  # Start plot
+  if fill_color is None:
+    fill_color = sns.color_palette(
+      'hls', n_colors=len(data['direction'].cat.categories)
+    )
+    fill_color = [mcolors.to_hex(color) for color in fill_color]
+  if xlab is None:
+    xlab = coef[0].upper() + coef[1:].replace('_', ' ')
+
+  np.random.seed(1234)
+
+  g = (
+    ggplot(data, aes(x=coef, y='log10p', color='direction'))
+    + geom_point(position=position_dodge(0.3), size=4, alpha=0.5)
+    + geom_vline(
+      xintercept=(0 if min(data[coef]) < 0 else 1),
+      linetype='dashed',
+      color='black',
+    )
+    + geom_hline(yintercept=-np.log10(pthresh), linetype='dashed', color='black')
+  )
+
+  # Add connecting lines and labels only if top_n is specified
+  if top_n:
+    g = g + geom_segment(
+      aes(xend='jitter_x', yend='jitter_y'),
+      color='grey',
+      size=0.5,
+      show_legend=False,
+    )
+    g = g + geom_label(
+      aes(x='jitter_x', y='jitter_y', label='var_labs'),
+      size=8,
+      color='grey',
+      label_padding=0.1,
+      show_legend=False,
+    )
+
+  # Finish plot
+  g = (
+    g
+    + scale_y_continuous(breaks=np.linspace(0, max(data['log10p']), 5))
+    + scale_x_continuous(breaks=np.linspace(min(data[coef]), max(data[coef]), 5))
+    + scale_color_manual(values=fill_color)
+    + coord_cartesian(
+      xlim=(min(data['jitter_x'].dropna()), max(data['jitter_x'].dropna()))
+    )
+    + facet_grid(f'{strata} ~ .')
+    + theme_bw()
+    + theme(
+      text=element_text(size=12),
+      axis_text=element_text(size=8),
+      legend_text=element_text(size=10),
+      legend_title=element_blank(),
+      strip_background=element_rect(fill='lightgrey'),
+    )
+    + labs(x=xlab, y='-log10(P-value)')
+  )
 
   return g

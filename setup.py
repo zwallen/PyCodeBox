@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name='PyCodeBox',
-  version='0.1.3',
+  version='0.1.4',
   author='Zachary D Wallen',
   description="""A personal collection of convenience functions for styling data 
     displays and outputs, transforming and organizing data, performing statistical 

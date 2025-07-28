@@ -53,7 +53,11 @@ def export_styled_xlsx_w_2_headers(df, ws_title, filename):
     ws.append(row)
 
   # Set column widths
-  col_widths = [55, 5, 15] + [5, 15, 20, 10] * (sum(df.iloc[0, :] != '') - 1)
+  col_widths = (
+    [(df.iloc[:, 0].str.len().max() + 5)]
+    + [5, 15]
+    + [5, 15, 20, 10] * (sum(df.iloc[0, :] != '') - 1)
+  )
   for i, width in enumerate(col_widths, 1):
     ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
 
