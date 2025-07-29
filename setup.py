@@ -13,6 +13,7 @@ setup(
   packages=find_packages(),
   install_requires=[
     'IPython',
+    'matplotlib',
     'numpy',
     'openpyxl',
     'pandas',

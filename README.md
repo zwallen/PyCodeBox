@@ -45,7 +45,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.3 (current)
+Version 0.1.4 (current)
+* Added stratified volcano plot function and associated testing
+
+Version 0.1.3
 * Fixed spacing issues and fine tuned plotting functions
 * Updated docstrings across functions
 
