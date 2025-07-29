@@ -1,4 +1,6 @@
+adjustText
 IPython
+matplotlib
 numpy
 openpyxl
 pandas

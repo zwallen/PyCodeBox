@@ -12,6 +12,7 @@ setup(
   license='MIT',
   packages=find_packages(),
   install_requires=[
+    'adjustText',
     'IPython',
     'matplotlib',
     'numpy',
