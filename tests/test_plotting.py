@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pycodebox import (
+from pycodebox.plotting import (
   stratified_barplot,
   stratified_violin_boxplot,
   stratified_coef_w_ci,

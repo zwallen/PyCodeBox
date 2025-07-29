@@ -540,8 +540,8 @@ def stratified_volcano(
 
   Returns:
   --------
-  plotnine.ggplot
-    A ggplot object containing the coefficient plot.
+  matplotlib.figure.Figure
+    A matplotlib figure object containing the volcano plot.
 
   Features:
   -------

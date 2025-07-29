@@ -1,5 +1,8 @@
 import pandas as pd
-from pycodebox import export_styled_xlsx_w_2_headers, display_styled_table_w_2_headers
+from pycodebox.styling import (
+  export_styled_xlsx_w_2_headers,
+  display_styled_table_w_2_headers,
+)
 
 
 def test_export_styled_xlsx(tmp_path):
