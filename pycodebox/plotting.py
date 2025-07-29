@@ -549,31 +549,12 @@ def stratified_volcano(
   """
   import numpy as np
   import pandas as pd
-  import seaborn as sns
+  import matplotlib.pyplot as plt
   import matplotlib.colors as mcolors
-  from plotnine import (
-    ggplot,
-    aes,
-    geom_vline,
-    geom_hline,
-    geom_point,
-    geom_label,
-    geom_segment,
-    position_dodge,
-    scale_y_continuous,
-    scale_x_continuous,
-    scale_color_manual,
-    coord_cartesian,
-    facet_grid,
-    theme_bw,
-    theme,
-    element_text,
-    element_blank,
-    element_rect,
-    labs,
-  )
+  import seaborn as sns
+  from adjustText import adjust_text
 
-  # Check `var` is numerical
+  # Check `var` is categorical
   if not (data[var].dtype.name == 'category'):
     print(
       'The variable supplied to `var` was not a pandas Categorical variable. \
@@ -591,7 +572,7 @@ def stratified_volcano(
     )
     data[strata] = pd.Categorical(data[strata])
 
-  # Check `coef`, `lower`, and `upper` are numerical
+  # Check `coef` and `pvalue` are numerical
   if data[coef].dtype.kind not in ['i', 'f']:
     raise ValueError('The variable supplied to `coef` must be numeric.')
   if data[pvalue].dtype.kind not in ['i', 'f']:
@@ -644,104 +625,109 @@ def stratified_volcano(
   # Create column for -log10 of the p-value
   data['log10p'] = -np.log10(data[pvalue])
 
-  # Create jittered positions for labels (only for points that have labels)
-  if top_n:
-    np.random.seed(1234)
-    data['jitter_x'] = pd.NA
-    data['jitter_y'] = pd.NA
-
-    data.loc[
-      data['var_labs'].notna() & (data['direction'] == 'Depleted'),
-      'jitter_x',
-    ] = data.loc[
-      data['var_labs'].notna() & (data['direction'] == 'Depleted'),
-      coef,
-    ] + np.random.uniform(
-      min(data.loc[data['direction'] == 'Depleted', coef]),
-      max(data.loc[data['direction'] == 'Depleted', coef]),
-      size=len(data[data['var_labs'].notna() & (data['direction'] == 'Depleted')]),
-    )
-
-    data.loc[
-      data['var_labs'].notna() & (data['direction'] == 'Enriched'),
-      'jitter_x',
-    ] = data.loc[
-      data['var_labs'].notna() & (data['direction'] == 'Enriched'),
-      coef,
-    ] + np.random.uniform(
-      min(data.loc[data['direction'] == 'Enriched', coef]),
-      max(data.loc[data['direction'] == 'Enriched', coef]),
-      size=len(data[data['var_labs'].notna() & (data['direction'] == 'Enriched')]),
-    )
-
-    data.loc[data['var_labs'].notna(), 'jitter_y'] = data.loc[
-      data['var_labs'].notna(), 'log10p'
-    ] + np.random.uniform(
-      min(data['log10p']),
-      max(data['log10p']),
-      size=len(data[data['var_labs'].notna()]),
-    )
-
-    data['jitter_x'] = pd.to_numeric(data['jitter_x'])
-    data['jitter_y'] = pd.to_numeric(data['jitter_y'])
-
-  # Start plot
+  # Set up colors
   if fill_color is None:
-    fill_color = sns.color_palette(
-      'hls', n_colors=len(data['direction'].cat.categories)
-    )
-    fill_color = [mcolors.to_hex(color) for color in fill_color]
+    colors = sns.color_palette('hls', n_colors=len(data['direction'].cat.categories))
+    fill_color = [mcolors.to_hex(color) for color in colors]
+
+  # Create color mapping
+  color_map = dict(zip(data['direction'].cat.categories, fill_color))
+
+  # Set up x-axis label
   if xlab is None:
     xlab = coef[0].upper() + coef[1:].replace('_', ' ')
 
-  np.random.seed(1234)
+  ### Begin figure generation ###
 
-  g = (
-    ggplot(data, aes(x=coef, y='log10p', color='direction'))
-    + geom_point(position=position_dodge(0.3), size=4, alpha=0.5)
-    + geom_vline(
-      xintercept=(0 if min(data[coef]) < 0 else 1),
-      linetype='dashed',
+  # Create figure and subplots
+  fig, axes = plt.subplots(
+    nrows=len(data[strata].cat.categories),
+    ncols=1,
+    figsize=(5, 4 * len(data[strata].cat.categories)),
+    sharex=True,
+    sharey=True,
+  )
+  if len(data[strata].cat.categories) == 1:
+    axes = [axes]
+
+  # Plot each stratum
+  for i, stratum in enumerate(data[strata].cat.categories):
+    ax = axes[i]
+    strat_data = data[data[strata] == stratum]
+
+    # Plot points for each direction category
+    texts = []
+    for direction in data['direction'].cat.categories:
+      direction_data = strat_data[strat_data['direction'] == direction]
+      if not direction_data.empty:
+        ax.scatter(
+          x=direction_data[coef],
+          y=direction_data['log10p'],
+          label=direction,
+          c=color_map[direction],
+          alpha=0.6,
+          s=50,
+        )
+
+        # Add labels for top_n points if specified
+        if top_n:
+          labeled_data = direction_data[direction_data['var_labs'].notna()]
+          for _, row in labeled_data.iterrows():
+            text = ax.annotate(
+              text=row['var_labs'],
+              xy=(row[coef], row['log10p']),
+              fontsize=8,
+              ha='center',
+              va='center',
+              bbox=dict(
+                boxstyle='round,pad=0.3',
+                facecolor='white',
+                alpha=0.6,
+                edgecolor='black',
+              ),
+            )
+            texts.append(text)
+
+    # Add reference lines
+    ax.axvline(
+      x=0 if min(data[coef]) < 0 else 1,
+      linestyle='--',
       color='black',
+      alpha=0.6,
     )
-    + geom_hline(yintercept=-np.log10(pthresh), linetype='dashed', color='black')
-  )
-
-  # Add connecting lines and labels only if top_n is specified
-  if top_n:
-    g = g + geom_segment(
-      aes(xend='jitter_x', yend='jitter_y'),
-      color='grey',
-      size=0.5,
-      show_legend=False,
-    )
-    g = g + geom_label(
-      aes(x='jitter_x', y='jitter_y', label='var_labs'),
-      size=8,
-      color='grey',
-      label_padding=0.1,
-      show_legend=False,
+    ax.axhline(
+      y=-np.log10(pthresh),
+      linestyle='--',
+      color='black',
+      alpha=0.6,
     )
 
-  # Finish plot
-  g = (
-    g
-    + scale_y_continuous(breaks=np.linspace(0, max(data['log10p']), 5))
-    + scale_x_continuous(breaks=np.linspace(min(data[coef]), max(data[coef]), 5))
-    + scale_color_manual(values=fill_color)
-    + coord_cartesian(
-      xlim=(min(data['jitter_x'].dropna()), max(data['jitter_x'].dropna()))
-    )
-    + facet_grid(f'{strata} ~ .')
-    + theme_bw()
-    + theme(
-      text=element_text(size=12),
-      axis_text=element_text(size=8),
-      legend_text=element_text(size=10),
-      legend_title=element_blank(),
-      strip_background=element_rect(fill='lightgrey'),
-    )
-    + labs(x=xlab, y='-log10(P-value)')
-  )
+    # Adjust text positions to avoid overlap
+    if top_n and texts:
+      adjust_text(
+        texts=texts,
+        ax=ax,
+        arrowprops=dict(arrowstyle='-', color='black', alpha=0.6),
+        force_explode=5,
+      )
 
-  return g
+    # Set subplot title and formatting
+    ax.set_title(
+      label=f'{strata[0].upper() + strata[1:].replace("_", " ")}: {stratum}',
+      fontsize=12,
+      fontweight='bold',
+    )
+    ax.grid(visible=True, alpha=0.3)
+    ax.set_ylabel(ylabel='-log10(P-value)', fontsize=10)
+
+    # Only show legend on first subplot
+    if i == 0:
+      ax.legend(loc='upper center', fontsize=9, framealpha=1)
+
+  # Set common x-label
+  axes[-1].set_xlabel(xlabel=xlab, fontsize=10)
+
+  # Adjust layout
+  plt.tight_layout()
+
+  return fig

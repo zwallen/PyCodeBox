@@ -4,6 +4,7 @@ from pycodebox import (
   stratified_barplot,
   stratified_violin_boxplot,
   stratified_coef_w_ci,
+  stratified_volcano,
 )
 
 
@@ -124,5 +125,79 @@ def test_stratified_coef_w_ci_full_params():
     pvalue='pvalue',
     fill_color=['grey', 'black'],
     xlab='Effect Size',
+  )
+  assert p is not None
+
+
+def test_stratified_volcano_required_params():
+  np.random.seed(42)
+  df = pd.DataFrame(
+    {
+      'genes': pd.Categorical([f'Gene{i}' for i in np.arange(1, 301)]),
+      'treatment': pd.Categorical(['TreatmentA', 'TreatmentB', 'Control'] * 100),
+      'coef': np.random.normal(
+        0, 1.5, 300
+      ),  # Coefficients centered around 0 with some spread
+      'pvalue': np.random.beta(
+        0.5, 2, 300
+      ),  # P-values skewed toward smaller values (more realistic)
+    }
+  )
+
+  # Add some clearly significant results for testing
+  # Make some genes highly significant in different treatments
+  df.loc[df.index < 10, 'pvalue'] = np.random.uniform(
+    0.001, 0.01, 10
+  )  # Very significant
+  df.loc[(df.index >= 10) & (df.index < 20), 'pvalue'] = np.random.uniform(
+    0.01, 0.05, 10
+  )  # Significant
+  df.loc[df.index < 10, 'coef'] = np.random.uniform(2, 4, 10)  # Strong positive effects
+  df.loc[(df.index >= 10) & (df.index < 20), 'coef'] = np.random.uniform(
+    -3, -1, 10
+  )  # Strong negative effects
+
+  p = stratified_volcano(df, 'genes', 'treatment', 'coef', 'pvalue')
+  assert p is not None
+
+
+def test_stratified_volcano_full_params():
+  np.random.seed(42)
+  df = pd.DataFrame(
+    {
+      'genes': pd.Categorical([f'Gene{i}' for i in np.arange(1, 301)]),
+      'treatment': pd.Categorical(['TreatmentA', 'TreatmentB', 'Control'] * 100),
+      'coef': np.random.normal(
+        0, 1.5, 300
+      ),  # Coefficients centered around 0 with some spread
+      'pvalue': np.random.beta(
+        0.5, 2, 300
+      ),  # P-values skewed toward smaller values (more realistic)
+    }
+  )
+
+  # Add some clearly significant results for testing
+  # Make some genes highly significant in different treatments
+  df.loc[df.index < 10, 'pvalue'] = np.random.uniform(
+    0.001, 0.01, 10
+  )  # Very significant
+  df.loc[(df.index >= 10) & (df.index < 20), 'pvalue'] = np.random.uniform(
+    0.01, 0.05, 10
+  )  # Significant
+  df.loc[df.index < 10, 'coef'] = np.random.uniform(2, 4, 10)  # Strong positive effects
+  df.loc[(df.index >= 10) & (df.index < 20), 'coef'] = np.random.uniform(
+    -3, -1, 10
+  )  # Strong negative effects
+
+  p = stratified_volcano(
+    df,
+    'genes',
+    'treatment',
+    'coef',
+    'pvalue',
+    pthresh=0.05,
+    top_n=5,
+    fill_color=['grey', 'blue', 'red'],
+    xlab='Mean expression change',
   )
   assert p is not None
