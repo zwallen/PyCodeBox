@@ -1,3 +1,2 @@
 pytest
 pytest-cov
-plotnine>=0.10.1
