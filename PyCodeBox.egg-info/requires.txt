@@ -1,9 +1,9 @@
 adjustText
 IPython
+itertools
 matplotlib
 numpy
 openpyxl
 pandas
-plotnine>=0.10.1
 scipy
 seaborn

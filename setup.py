@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name='PyCodeBox',
-  version='0.1.5',
+  version='0.1.6',
   author='Zachary D Wallen',
   description="""A personal collection of convenience functions for styling data 
     displays and outputs, transforming and organizing data, performing statistical 
@@ -14,11 +14,11 @@ setup(
   install_requires=[
     'adjustText',
     'IPython',
+    'itertools',
     'matplotlib',
     'numpy',
     'openpyxl',
     'pandas',
-    'plotnine>=0.10.1',
     'scipy',
     'seaborn',
   ],

@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: PyCodeBox
-Version: 0.1.5
+Version: 0.1.6
 Summary: A personal collection of convenience functions for styling data 
 Author: Zachary D Wallen
 License: MIT
@@ -12,11 +12,11 @@ Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: adjustText
 Requires-Dist: IPython
+Requires-Dist: itertools
 Requires-Dist: matplotlib
 Requires-Dist: numpy
 Requires-Dist: openpyxl
 Requires-Dist: pandas
-Requires-Dist: plotnine>=0.10.1
 Requires-Dist: scipy
 Requires-Dist: seaborn
 Dynamic: author

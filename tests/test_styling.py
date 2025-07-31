@@ -14,5 +14,5 @@ def test_export_styled_xlsx(tmp_path):
 
 def test_display_styled_table_w_2_headers():
   df = pd.DataFrame([['Header1', 'Header2'], ['Sub1', 'Sub2'], [1, 2]])
-  display_styled_table_w_2_headers(df)
+  display_styled_table_w_2_headers(df, rows_per_page=20)
   assert True  # Just checking it runs without error
