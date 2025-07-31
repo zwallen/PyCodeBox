@@ -45,7 +45,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.4 (current)
+Version 0.1.6 (current)
+* Converted plotting functions to use `matplotlib` and `seaborn` instead of `plotnine`
+* Added statistical testing and plotting of significant associations to 
+`stratified_barplot` and `stratified_violin_boxplot` functions
+* Fixed docstrings of all functions so they render correctly
+
+Version 0.1.5
 * Added stratified volcano plot function and associated testing
 
 Version 0.1.3
