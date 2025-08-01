@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: PyCodeBox
-Version: 0.1.6
+Version: 0.1.7
 Summary: A personal collection of convenience functions for styling data 
 Author: Zachary D Wallen
 License: MIT
@@ -12,7 +12,6 @@ Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: adjustText
 Requires-Dist: IPython
-Requires-Dist: itertools
 Requires-Dist: matplotlib
 Requires-Dist: numpy
 Requires-Dist: openpyxl
@@ -76,7 +75,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.4 (current)
+Version 0.1.6 (current)
+* Converted plotting functions to use `matplotlib` and `seaborn` instead of `plotnine`
+* Added statistical testing and plotting of significant associations to 
+`stratified_barplot` and `stratified_violin_boxplot` functions
+* Fixed docstrings of all functions so they render correctly
+
+Version 0.1.5
 * Added stratified volcano plot function and associated testing
 
 Version 0.1.3

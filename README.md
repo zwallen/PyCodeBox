@@ -45,10 +45,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.6 (current)
+Version 0.1.7 (current)
+* Added function `read_tab_delim_file_to_dict` to read a tab-delimited file line by line to a dictionary (useful for files that do not have the same number of fields per row)
+
+Version 0.1.6
 * Converted plotting functions to use `matplotlib` and `seaborn` instead of `plotnine`
-* Added statistical testing and plotting of significant associations to 
-`stratified_barplot` and `stratified_violin_boxplot` functions
+* Added statistical testing and plotting of significant associations to `stratified_barplot` and `stratified_violin_boxplot` functions
 * Fixed docstrings of all functions so they render correctly
 
 Version 0.1.5

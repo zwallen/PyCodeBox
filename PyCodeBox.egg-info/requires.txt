@@ -1,6 +1,5 @@
 adjustText
 IPython
-itertools
 matplotlib
 numpy
 openpyxl

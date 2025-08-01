@@ -12,7 +12,9 @@ pycodebox/__init__.py
 pycodebox/plotting.py
 pycodebox/stats.py
 pycodebox/styling.py
+pycodebox/utils.py
 tests/__init__.py
 tests/test_plotting.py
 tests/test_stats.py
 tests/test_styling.py
+tests/test_utils.py
