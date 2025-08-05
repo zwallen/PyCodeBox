@@ -45,7 +45,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.7 (current)
+Version 0.1.8 (current)
+* Added function `pca_kmeans_plot` and corresponding testing of function to perform PCA and K-means clustering, returning a plot of the results and a contingency table if a known group variable is provided
+
+Version 0.1.7
 * Added function `read_tab_delim_file_to_dict` to read a tab-delimited file line by line to a dictionary (useful for files that do not have the same number of fields per row)
 
 Version 0.1.6

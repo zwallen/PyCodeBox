@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.figure as Figure
+import matplotlib.axes as Axes
 from pycodebox.plotting import (
     stratified_barplot,
     stratified_violin_boxplot,
     stratified_coef_w_ci,
     stratified_volcano,
+    pca_kmeans_plot,
 )
 
 
@@ -255,3 +258,46 @@ def test_stratified_volcano_full_params():
     )
     plt.close()
     assert p is not None
+
+
+def make_simple_df(n=40, nfeat=3, ngroups=3, seed=1):
+    np.random.seed(seed)
+    groups = np.arange(n) % ngroups
+    data = np.random.randn(n, nfeat) + groups[:, None] * 3
+    df = pd.DataFrame(data, columns=[f'feat{i}' for i in range(nfeat)])
+    df['group'] = groups
+    df['group'] = pd.Categorical(df['group'])
+    return df
+
+
+def test_pca_kmeans_plot_required_params():
+    df = make_simple_df()
+    fig, ax, cluster_labels = pca_kmeans_plot(df)
+    assert isinstance(fig, Figure.Figure)
+    assert isinstance(ax, Axes.Axes)
+    assert isinstance(cluster_labels, np.ndarray)
+    assert len(cluster_labels) == len(df)
+    # Check that the number of unique clusters is at least 2
+    assert len(np.unique(cluster_labels)) >= 2
+
+
+def test_pca_kmeans_plot_full_params():
+    df = make_simple_df(n=60, nfeat=4, ngroups=4, seed=42)
+    group_fill_color = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']
+    fig, ax, cluster_labels, contingency = pca_kmeans_plot(
+        df,
+        group_var='group',
+        random_state=7,
+        standardize=False,
+        group_fill_color=group_fill_color,
+    )
+    assert isinstance(fig, Figure.Figure)
+    assert isinstance(ax, np.ndarray)
+    assert ax.shape == (2,)
+    assert isinstance(cluster_labels, np.ndarray)
+    assert len(cluster_labels) == len(df)
+    assert isinstance(contingency, pd.DataFrame)
+    # The number of rows in contingency must match unique groups
+    assert contingency.shape[0] == df['group'].nunique()
+    # The number of unique cluster labels matches the number of groups (k)
+    assert len(np.unique(cluster_labels)) == df['group'].nunique()
