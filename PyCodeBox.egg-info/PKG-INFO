@@ -18,7 +18,7 @@ Requires-Dist: openpyxl
 Requires-Dist: pandas
 Requires-Dist: scipy
 Requires-Dist: seaborn
-Requires-Dist: sklearn
+Requires-Dist: scikit-learn
 Dynamic: author
 Dynamic: classifier
 Dynamic: description

@@ -20,7 +20,7 @@ setup(
         'pandas',
         'scipy',
         'seaborn',
-        'sklearn',
+        'scikit-learn',
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
