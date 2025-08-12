@@ -45,7 +45,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.8 (current)
+Version 0.1.9 (current)
+* Updated formatting of code
+* Modified `stratified_volcano_plot` and `pca_kmeans_plot` functions to handle single categories/plots better
+
+Version 0.1.8
 * Added function `pca_kmeans_plot` and corresponding testing of function to perform PCA and K-means clustering, returning a plot of the results and a contingency table if a known group variable is provided
 
 Version 0.1.7
