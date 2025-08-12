@@ -10,176 +10,157 @@
 
 
 def export_styled_xlsx_w_2_headers(df, ws_title, filename):
-    """
-    Export a pandas DataFrame to a styled Excel file with custom formatting for tables
-    with two header rows: a major header row and a sub header row.
+  """
+  Export a pandas DataFrame to a styled Excel file with custom formatting for tables
+  with two header rows: a major header row and a sub header row.
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        The DataFrame to export. The first two rows should correspond to header and
-        sub-header rows.
-    ws_title : str
-        The title/name for the Excel worksheet.
-    filename : str
-        The filename (including path if needed) for the output Excel file. Should include
-        .xlsx extension.
+  Parameters
+  ----------
+  df : pandas.DataFrame
+      The DataFrame to export. The first two rows should correspond to header and
+      sub-header rows.
+  ws_title : str
+      The title/name for the Excel worksheet.
+  filename : str
+      The filename (including path if needed) for the output Excel file. Should include
+      .xlsx extension.
 
-    Returns
-    -------
-    None
-        Saves a styled Excel workbook to file.
+  Returns
+  -------
+  None
+      Saves a styled Excel workbook to file.
+  """
+  import openpyxl
+  from openpyxl.styles import Alignment, Font, Border, Side
+  from openpyxl.utils.dataframe import dataframe_to_rows
 
-    Features
-    --------
-    - Custom column widths (55 for first column, then alternating 5/15/20/10 pattern)
-    - Left alignment for most cells, left and center alignment for first column
-    - First two rows are bold
-    - Medium borders on top of first row, bottom of second row, and bottom of last row
-    - Thin borders above rows containing 'Total', 'N, %', or 'Mean±SD' in first column
-    - Automatic conversion of numeric strings back to numbers where possible
-    """
-    import openpyxl
-    from openpyxl.styles import Alignment, Font, Border, Side
-    from openpyxl.utils.dataframe import dataframe_to_rows
+  # Create workbook and worksheet
+  wb = openpyxl.Workbook()
+  ws = wb.active
+  ws.title = ws_title
 
-    # Create workbook and worksheet
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = ws_title
+  # Write DataFrame to worksheet (no column names)
+  for row in dataframe_to_rows(df, index=False, header=False):
+    ws.append(row)
 
-    # Write DataFrame to worksheet (no column names)
-    for row in dataframe_to_rows(df, index=False, header=False):
-        ws.append(row)
+  # Set column widths
+  col_widths = (
+    [(df.iloc[:, 0].str.len().max() + 5)]
+    + [5, 15]
+    + [5, 15, 20, 10] * (sum(df.iloc[0, :] != "") - 1)
+  )
+  for i, width in enumerate(col_widths, 1):
+    ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
 
-    # Set column widths
-    col_widths = (
-        [(df.iloc[:, 0].str.len().max() + 5)]
-        + [5, 15]
-        + [5, 15, 20, 10] * (sum(df.iloc[0, :] != '') - 1)
-    )
-    for i, width in enumerate(col_widths, 1):
-        ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
+  # Apply left alignment to all cells
+  for row in ws.iter_rows(
+    min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column
+  ):
+    for cell in row:
+      cell.alignment = Alignment(horizontal="left", vertical="center")
 
-    # Apply left alignment to all cells
-    for row in ws.iter_rows(
-        min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column
-    ):
-        for cell in row:
-            cell.alignment = Alignment(horizontal='left', vertical='center')
+  # Apply center alignment to cells in first column
+  for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=1):
+    for cell in row:
+      cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    # Apply center alignment to cells in first column
-    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=1):
-        for cell in row:
-            cell.alignment = Alignment(horizontal='center', vertical='center')
+  # Apply bold to first two rows
+  for row in ws.iter_rows(min_row=1, max_row=2, min_col=1, max_col=ws.max_column):
+    for cell in row:
+      cell.font = Font(bold=True)
 
-    # Apply bold to first two rows
-    for row in ws.iter_rows(min_row=1, max_row=2, min_col=1, max_col=ws.max_column):
-        for cell in row:
-            cell.font = Font(bold=True)
+  # Apply medium border to top of row 1, and bottom of row 2 and last row
+  for row, border_pos in zip([1, 2, ws.max_row], ["top", "bottom", "bottom"]):
+    for col in range(1, ws.max_column + 1):
+      if border_pos == "top":
+        ws.cell(row=row, column=col).border = Border(
+          top=Side(border_style="medium", color="000000")
+        )
+      else:
+        ws.cell(row=row, column=col).border = Border(
+          bottom=Side(border_style="medium", color="000000")
+        )
 
-    # Apply medium border to top of row 1, and bottom of row 2 and last row
-    for row, border_pos in zip([1, 2, ws.max_row], ['top', 'bottom', 'bottom']):
-        for col in range(1, ws.max_column + 1):
-            if border_pos == 'top':
-                ws.cell(row=row, column=col).border = Border(
-                    top=Side(border_style='medium', color='000000')
-                )
-            else:
-                ws.cell(row=row, column=col).border = Border(
-                    bottom=Side(border_style='medium', color='000000')
-                )
+  # Apply thin border below major variable rows and left align
+  def grep(pattern):
+    import re
 
-    # Apply thin border below major variable rows and left align
-    def grep(pattern):
-        import re
+    return [
+      i + 1
+      for i, cell in enumerate(ws["A"])
+      if cell.value and re.search(pattern, str(cell.value))
+    ]
 
-        return [
-            i + 1
-            for i, cell in enumerate(ws['A'])
-            if cell.value and re.search(pattern, str(cell.value))
-        ]
+  border_rows = []
+  border_rows += grep("Total")
+  border_rows += grep("N, %")
+  border_rows += grep("Mean±SD")
 
-    border_rows = []
-    border_rows += grep('Total')
-    border_rows += grep('N, %')
-    border_rows += grep('Mean±SD')
+  for row in border_rows:
+    for col in range(1, ws.max_column + 1):
+      ws.cell(row=row, column=col).border = Border(
+        top=Side(border_style="thin", color="000000")
+      )
+      ws.cell(row=row, column=col).alignment = Alignment(
+        horizontal="left", vertical="center"
+      )
 
-    for row in border_rows:
-        for col in range(1, ws.max_column + 1):
-            ws.cell(row=row, column=col).border = Border(
-                top=Side(border_style='thin', color='000000')
-            )
-            ws.cell(row=row, column=col).alignment = Alignment(
-                horizontal='left', vertical='center'
-            )
+  # Convert numbers from strings back to numbers where possible
+  for row in ws.iter_rows(
+    min_row=3, max_row=ws.max_row, min_col=1, max_col=ws.max_column
+  ):
+    for cell in row:
+      if isinstance(cell.value, str):
+        try:
+          if "." in cell.value:
+            cell.value = float(cell.value)
+          else:
+            cell.value = int(cell.value)
+        except Exception:
+          pass
 
-    # Convert numbers from strings back to numbers where possible
-    for row in ws.iter_rows(
-        min_row=3, max_row=ws.max_row, min_col=1, max_col=ws.max_column
-    ):
-        for cell in row:
-            if isinstance(cell.value, str):
-                try:
-                    if '.' in cell.value:
-                        cell.value = float(cell.value)
-                    else:
-                        cell.value = int(cell.value)
-                except Exception:
-                    pass
-
-    # Save workbook
-    wb.save(filename)
+  # Save workbook
+  wb.save(filename)
 
 
 def display_styled_table_w_2_headers(df, rows_per_page=50):
-    """
-    Display a pandas DataFrame as a styled HTML table with custom formatting for tables
-    with two header rows: a major header row and a sub header row. Shows data in pages
-    with specified number of rows per page, keeping the first two header rows on each
-    page.
+  """
+  Display a pandas DataFrame as a styled HTML table with custom formatting for tables
+  with two header rows: a major header row and a sub header row. Shows data in pages
+  with specified number of rows per page, keeping the first two header rows on each
+  page.
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        The DataFrame to display. The first two rows should correspond to header and
-        sub-header rows.
-    rows_per_page : int, optional
-        Number of data rows to display per page (excluding the 2 header rows)
-        (default: 50).
+  Parameters
+  ----------
+  df : pandas.DataFrame
+      The DataFrame to display. The first two rows should correspond to header and
+      sub-header rows.
+  rows_per_page : int, optional
+      Number of data rows to display per page (excluding the 2 header rows)
+      (default: 50).
 
-    Returns
-    -------
-    None
-        Displays the styled HTML table.
+  Returns
+  -------
+  None
+      Displays the styled HTML table.
+  """
+  from IPython.display import display, HTML
+  import math
 
-    Features
-    --------
-    - First 2 rows are bold and appear on every page
-    - Medium border under 2nd row
-    - First column cells containing 'Total', '(N, %)', or '(Mean±SD)' are bold
-    - No text wrapping
-    - Horizontally scrollable if needed
-    - Navigation buttons for page switching
-    - Quarto-compatible styling
-    """
-    from IPython.display import display, HTML
-    import math
+  # Extract header rows (first 2 rows) and data rows
+  header_rows = df.iloc[:2]
+  data_rows = df.iloc[2:]
 
-    # Extract header rows (first 2 rows) and data rows
-    header_rows = df.iloc[:2]
-    data_rows = df.iloc[2:]
+  # Calculate total number of pages
+  total_pages = math.ceil(len(data_rows) / rows_per_page) if len(data_rows) > 0 else 1
 
-    # Calculate total number of pages
-    total_pages = math.ceil(len(data_rows) / rows_per_page) if len(data_rows) > 0 else 1
+  # Generate unique ID for this table instance
+  import uuid
 
-    # Generate unique ID for this table instance
-    import uuid
+  table_id = str(uuid.uuid4())[:8]
 
-    table_id = str(uuid.uuid4())[:8]
-
-    # Create JavaScript for pagination and cell styling
-    js_script = f"""
+  # Create JavaScript for pagination and cell styling
+  js_script = f"""
     <script>
     document.addEventListener('DOMContentLoaded', function() {{
       let currentPage_{table_id} = 1;
@@ -247,26 +228,26 @@ def display_styled_table_w_2_headers(df, rows_per_page=50):
     </script>
     """
 
-    # Create HTML table structure
-    html_parts = []
+  # Create HTML table structure
+  html_parts = []
 
-    # Add header rows (these will always be visible)
-    for idx, (_, row) in enumerate(header_rows.iterrows()):
-        row_class = 'header-row'
-        cells = ''.join([f'<td>{cell}</td>' for cell in row.values])
-        html_parts.append(f'<tr class="{row_class}">{cells}</tr>')
+  # Add header rows (these will always be visible)
+  for idx, (_, row) in enumerate(header_rows.iterrows()):
+    row_class = "header-row"
+    cells = "".join([f"<td>{cell}</td>" for cell in row.values])
+    html_parts.append(f'<tr class="{row_class}">{cells}</tr>')
 
-    # Add data rows (these will be shown/hidden based on pagination)
-    for idx, (_, row) in enumerate(data_rows.iterrows()):
-        row_class = 'data-row'
-        cells = ''.join([f'<td>{cell}</td>' for cell in row.values])
-        html_parts.append(f'<tr class="{row_class}">{cells}</tr>')
+  # Add data rows (these will be shown/hidden based on pagination)
+  for idx, (_, row) in enumerate(data_rows.iterrows()):
+    row_class = "data-row"
+    cells = "".join([f"<td>{cell}</td>" for cell in row.values])
+    html_parts.append(f'<tr class="{row_class}">{cells}</tr>')
 
-    # Combine all rows
-    table_rows = '\n'.join(html_parts)
+  # Combine all rows
+  table_rows = "\n".join(html_parts)
 
-    # Create pagination controls
-    pagination_controls = f"""
+  # Create pagination controls
+  pagination_controls = f"""
     <div class="pagination-controls" style="margin: 10px 0; text-align: center;">
       <button id="prev-btn_{table_id}" style="margin: 0 10px; padding: 5px 10px;">← Previous</button>
       <span id="page-info_{table_id}" style="margin: 0 10px; font-weight: bold;">Page 1 of {total_pages}</span>
@@ -274,8 +255,8 @@ def display_styled_table_w_2_headers(df, rows_per_page=50):
     </div>
     """
 
-    # Full CSS: Remove wrapping, ensure column expansion, remove width restrictions
-    styled_html = f"""
+  # Full CSS: Remove wrapping, ensure column expansion, remove width restrictions
+  styled_html = f"""
     {js_script}
     <style>
     /* Remove Quarto's max-width */
@@ -331,5 +312,5 @@ def display_styled_table_w_2_headers(df, rows_per_page=50):
     {pagination_controls}
     """
 
-    # Display the styled HTML table
-    display(HTML(styled_html))
+  # Display the styled HTML table
+  display(HTML(styled_html))
