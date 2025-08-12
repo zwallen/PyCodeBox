@@ -45,7 +45,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.1.9 (current)
+Version 0.2.0 (current)
+* Fixed bug that was introduced with last push
+
+Version 0.1.9
 * Updated formatting of code
 * Modified `stratified_volcano_plot` and `pca_kmeans_plot` functions to handle single categories/plots better
 
