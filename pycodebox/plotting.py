@@ -782,7 +782,7 @@ def stratified_coef_w_ci(
     if len(data[strata].cat.categories) > 1:
       ax[i].set_xlim(
         min(data[lower].dropna()) - abs(min(data[lower].dropna())) * 0.05,
-        max(data[upper].dropna()) + abs(min(data[lower].dropna())) * 0.50
+        max(data[upper].dropna()) + abs(min(data[lower].dropna())) * 0.45
         if pvalue
         else max(data[upper].dropna()) + abs(min(data[lower].dropna())) * 0.05,
       )
@@ -817,12 +817,13 @@ def stratified_coef_w_ci(
       title_fontsize=10,
       frameon=False,
     )
-    plt.subplots_adjust(right=0.7)
 
   # Set common x-label
   ax[-1].set_xlabel(xlabel=xlab, fontsize=10)
 
   plt.tight_layout()
+  if len(data[strata].cat.categories) > 1:
+    plt.subplots_adjust(right=0.7)
 
   return fig, ax
 
@@ -1046,9 +1047,6 @@ def stratified_volcano(
         arrowprops=dict(arrowstyle="-", color="black", alpha=0.6),
         force_explode=5,
       )
-
-    # Set y-axis limits to give more room around points
-    ax[i].set_ylim(-1, max(cat_data["log10p"]) + 1)
 
     # Set subplot title and formatting
     ax[i].set_title(
