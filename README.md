@@ -45,7 +45,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.2.0 (current)
+Version 0.2.1 (current)
+* Fixed sizing issues with `stratified_coef_w_ci` plotting function
+
+Version 0.2.0
 * Fixed bug that was introduced with last push
 
 Version 0.1.9
