@@ -762,7 +762,7 @@ def stratified_coef_w_ci(
             s=row["pvalue_labs"],
             va="center",
             ha="left",
-            fontsize=8,
+            fontsize=8 if len(data[strata].cat.categories) > 1 else 10,
           )
 
     # Remove y-axis ticks and labels
@@ -789,9 +789,7 @@ def stratified_coef_w_ci(
     else:
       ax[i].set_xlim(
         min(data[lower].dropna()) - abs(min(data[lower].dropna())) * 0.05,
-        max(data[upper].dropna()) + abs(min(data[lower].dropna())) * 1.8
-        if pvalue
-        else max(data[upper].dropna()) + abs(min(data[lower].dropna())) * 0.05,
+        max(data[upper].dropna()) + abs(min(data[lower].dropna())) * 0.05,
       )
 
   # Add legend (only show unique labels)
@@ -823,7 +821,7 @@ def stratified_coef_w_ci(
 
   plt.tight_layout()
   if len(data[strata].cat.categories) > 1:
-    plt.subplots_adjust(right=0.7)
+    plt.subplots_adjust(right=0.65)
 
   return fig, ax
 
