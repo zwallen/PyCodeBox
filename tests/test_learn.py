@@ -23,11 +23,9 @@ def sample_data():
   return x, y
 
 
-x, y = sample_data()
-
-
-def test_random_forest_classifier_defaults(x, y, tmp_path):
-  result = random_forest_classifier(x, y, out_file_prefix=str(tmp_path) + "/")
+def test_random_forest_classifier_defaults():
+  x, y = sample_data()
+  result = random_forest_classifier(x, y, out_file_prefix="test_")
   # Basic checks
   assert isinstance(result, dict)
   assert "selected_features" in result
@@ -41,10 +39,8 @@ def test_random_forest_classifier_defaults(x, y, tmp_path):
   assert len(result["selected_features"]) > 0
 
 
-x, y = sample_data()
-
-
-def test_random_forest_classifier_full_params(x, y, tmp_path):
+def test_random_forest_classifier_full_params():
+  x, y = sample_data()
   result = random_forest_classifier(
     x,
     y,
@@ -63,7 +59,7 @@ def test_random_forest_classifier_full_params(x, y, tmp_path):
     cv=3,
     n_jobs=1,
     roc_curve_col="red",
-    out_file_prefix=str(tmp_path) + "/custom_",
+    out_file_prefix="test_full_",
   )
   assert isinstance(result, dict)
   assert result["model"].n_estimators == 200 or result["model"].n_estimators in [
