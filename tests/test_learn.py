@@ -23,8 +23,10 @@ def sample_data():
   return x, y
 
 
-def test_random_forest_classifier_defaults(sample_data, tmp_path):
-  x, y = sample_data()
+x, y = sample_data()
+
+
+def test_random_forest_classifier_defaults(x, y, tmp_path):
   result = random_forest_classifier(x, y, out_file_prefix=str(tmp_path) + "/")
   # Basic checks
   assert isinstance(result, dict)
@@ -39,11 +41,13 @@ def test_random_forest_classifier_defaults(sample_data, tmp_path):
   assert len(result["selected_features"]) > 0
 
 
-def test_random_forest_classifier_full_params(sample_data, tmp_path):
-  x, y = sample_data()
+x, y = sample_data()
+
+
+def test_random_forest_classifier_full_params(x, y, tmp_path):
   result = random_forest_classifier(
-    x=x,
-    y=y,
+    x,
+    y,
     random_state=42,
     test_size=0.3,
     n_estimators=200,
