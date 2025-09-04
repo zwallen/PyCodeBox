@@ -9,11 +9,13 @@ PyCodeBox.egg-info/dependency_links.txt
 PyCodeBox.egg-info/requires.txt
 PyCodeBox.egg-info/top_level.txt
 pycodebox/__init__.py
+pycodebox/learn.py
 pycodebox/plotting.py
 pycodebox/stats.py
 pycodebox/styling.py
 pycodebox/utils.py
 tests/__init__.py
+tests/test_learn.py
 tests/test_plotting.py
 tests/test_stats.py
 tests/test_styling.py

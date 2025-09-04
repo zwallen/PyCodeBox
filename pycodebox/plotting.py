@@ -54,8 +54,6 @@ def stratified_barplot(
 
   Notes
   -----
-  - Missing values in `var` are automatically filtered out before plotting and an error
-  arises if no data is left after filtering.
   - Fisher's exact test is performed when `var` contains 2 groups and Chi-squared test
   is performed when `var` has >2 groups.
   - Statistical tests exclude comparisons with the 'All cases' group.
@@ -68,31 +66,16 @@ def stratified_barplot(
   import scipy.stats as stats
   from itertools import combinations
 
-  # Check `var` is categorical
+  # Make `var` categorical if not already
   if not (data[var].dtype.name == "category"):
-    print(
-      "The variable supplied to `var` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[var] = pd.Categorical(data[var])
 
-  # Check `strata` is categorical
+  # Make `strata` categorical if not already
   if not (data[strata].dtype.name == "category"):
-    print(
-      "The variable supplied to `strata` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[strata] = pd.Categorical(data[strata])
 
   # Filter out missing values for `var`
   data = data[data[var].notna()]
-  if data.empty:
-    raise ValueError(
-      "No data available for `var` and `strata` after filtering out missing \
-      values of `var`."
-    )
 
   # Perform pairwise Fisher exact tests
   significant_pairs = []
@@ -364,8 +347,6 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None, alpha=0.0
 
   Notes
   -----
-  - Missing values in `var` are automatically filtered out before plotting and an error
-  arises if no data is left after filtering.
   - Statistical tests exclude comparisons with the 'All cases' group.
   """
   import pandas as pd
@@ -374,26 +355,12 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None, alpha=0.0
   import scipy.stats as stats
   from itertools import combinations
 
-  # Check `var` is numerical
-  if data[var].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `var` must be numeric.")
-
-  # Check `strata` is categorical
+  # Make `strata` categorical if not already
   if not (data[strata].dtype.name == "category"):
-    print(
-      "The variable supplied to `strata` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[strata] = pd.Categorical(data[strata])
 
   # Filter out missing values for `var`
   data = data[data[var].notna()]
-  if data.empty:
-    raise ValueError(
-      "No data available for `var` and `strata` after filtering out missing \
-            values of `var`."
-    )
 
   # Perform pairwise Mann-Whitney U tests
   significant_pairs = []
@@ -417,7 +384,7 @@ def stratified_violin_boxplot(data, var, strata, ylab=None, xlab=None, alpha=0.0
   data = pd.concat([data, data])
   data[strata] = pd.Categorical(
     data[strata],
-    categories=["All cases"] + data[strata].cat.categories.tolist(),
+    categories=["All cases"] + list(data[strata].cat.categories),
     ordered=True,
   )
   data.loc[
@@ -653,40 +620,20 @@ def stratified_coef_w_ci(
   import matplotlib.colors as mcolors
   import seaborn as sns
 
-  # Check `var` is categorical
+  # Make `var` categorical if not already
   if not (data[var].dtype.name == "category"):
-    print(
-      "The variable supplied to `var` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[var] = pd.Categorical(data[var])
 
   # Make sure all categories of `var` are present in data
   var_counts = data[var].value_counts()
   if len(data[var].cat.categories) != sum(var_counts > 0):
     data[var] = pd.Categorical(
-      data[var], categories=var_counts[var_counts > 0].index.tolist()
+      data[var], categories=list(var_counts[var_counts > 0].index)
     )
 
-  # Check `strata` is categorical
+  # Make `strata` categorical if not already
   if not (data[strata].dtype.name == "category"):
-    print(
-      "The variable supplied to `strata` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[strata] = pd.Categorical(data[strata])
-
-  # Check `coef`, `lower`, and `upper` are numerical
-  if data[coef].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `coef` must be numeric.")
-  if data[lower].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `lower` must be numeric.")
-  if data[upper].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `upper` must be numeric.")
-  if pvalue and data[pvalue].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `pvalue` must be numeric.")
 
   # If `pvalue` provided, create p-value labels
   if pvalue:
@@ -885,29 +832,13 @@ def stratified_volcano(
   import seaborn as sns
   from adjustText import adjust_text
 
-  # Check `var` is categorical
+  # Make `var` categorical if not already
   if not (data[var].dtype.name == "category"):
-    print(
-      "The variable supplied to `var` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[var] = pd.Categorical(data[var])
 
-  # Check `strata` is categorical
+  # Make `strata` categorical if not already
   if not (data[strata].dtype.name == "category"):
-    print(
-      "The variable supplied to `strata` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[strata] = pd.Categorical(data[strata])
-
-  # Check `coef` and `pvalue` are numerical
-  if data[coef].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `coef` must be numeric.")
-  if data[pvalue].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `pvalue` must be numeric.")
 
   # Create enriched vs depleted column
   if min(data[coef]) < 0:
@@ -1066,224 +997,3 @@ def stratified_volcano(
   plt.tight_layout()
 
   return fig, ax
-
-
-def pca_kmeans_plot(
-  data,
-  group_var=None,
-  k_range=range(2, 20),
-  random_state=0,
-  standardize=True,
-  group_fill_color=None,
-):
-  """
-  Perform PCA and k-means clustering, plotting the first two PCs colored by clusters.
-  Optionally, if a grouping variable is provided, plot two subplots: coloring by group
-  and by k-means clusters, and return a contingency table.
-
-  Parameters
-  ----------
-  data : pandas.DataFrame
-      Input dataframe. Must be all numeric except possibly the grouping variable.
-  group_var : str or None, optional
-      Name of the column with known groupings. If provided, k will be set to the
-      number of unique groups.
-  k_range : range, optional
-      Range of k values to try if group_var is not given.
-  random_state : int, optional
-      Random state for reproducibility.
-  standardize : bool, optional
-      Whether to standardize features before PCA (default: True).
-  group_fill_color : list, optional
-      List of color hex codes to use for filling the groups in the plot. If provided,
-      it will override the default color mapping.
-
-  Returns
-  -------
-  fig : matplotlib.figure.Figure
-      A matplotlib figure object containing a PCA plot colored by k-means cluster
-      membership and, if `group_var` provided, the known groupings.
-  ax : matplotlib.axes.Axes
-      A matplotlib axes object containing specifications of the PCA plot(s).
-  cluster_labels : numpy.ndarray
-      Array of cluster labels assigned by k-means.
-  contingency_table : pandas.DataFrame
-      A contingency table showing the relationship between the grouping variable and
-      the k-means cluster membership. Only returned if `group_var` is provided.
-  """
-  import pandas as pd
-  import numpy as np
-  import matplotlib.pyplot as plt
-  from sklearn.decomposition import PCA
-  from sklearn.cluster import KMeans
-  from sklearn.metrics import silhouette_score
-  from sklearn.preprocessing import StandardScaler
-
-  # Separate features and group_var
-  if group_var is not None:
-    # Check `group_var` is in DataFrame
-    assert group_var in data.columns, f"{group_var} not found in DataFrame columns"
-
-    # Check `group_var` is categorical
-    if not (data[group_var].dtype.name == "category"):
-      print(
-        "The variable supplied to `group_var` was not a pandas Categorical variable. \
-        Converting this variable to pandas Categorical with no specific ordering of \
-        categories."
-      )
-      data[group_var] = pd.Categorical(data[group_var])
-
-    x = data.drop(columns=[group_var])
-    k = len(data[group_var].cat.categories)
-  else:
-    x = data.copy()
-    k = None
-
-  # Only keep numeric features
-  x = x.select_dtypes(include=[np.number])
-  if x.shape[1] < 2:
-    raise ValueError("Need at least two numeric columns for PCA.")
-
-  # Standardize to mean of ~0 and variance of 1
-  if standardize:
-    scaler = StandardScaler()
-    x_scaled = scaler.fit_transform(x)
-  else:
-    x_scaled = x.values
-
-  # Perform PCA and extract first two components
-  pca = PCA(n_components=2, random_state=random_state).fit_transform(x_scaled)
-  pc_data = pd.DataFrame(pca, columns=["PC1", "PC2"])
-
-  # Determine optimal k
-  if k is None:
-    sil_scores = []
-    for i in k_range:
-      labels = KMeans(
-        n_clusters=i,
-        n_init=10,
-        random_state=random_state,
-      ).fit_predict(x_scaled)
-      sil_scores.append(silhouette_score(x_scaled, labels))
-    k = k_range[np.argmax(sil_scores)]
-
-  # Fit KMeans
-  cluster_labels = KMeans(
-    n_clusters=k,
-    n_init=10,
-    random_state=random_state,
-  ).fit_predict(x_scaled)
-  pc_data["cluster"] = cluster_labels
-
-  ### Begin figure generation ###
-
-  plt.ioff()
-  if group_var is None:
-    # Initiate a single plot
-    fig, ax = plt.subplots(figsize=(6, 5))
-
-    # Plot coloring by estimated cluster
-    scatter = ax.scatter(
-      pc_data["PC1"],
-      pc_data["PC2"],
-      c=pc_data["cluster"],
-      cmap="tab10",
-      s=50,
-      alpha=0.8,
-      edgecolor="k",
-    )
-
-    # Set plot title and formatting
-    ax.set_title(f"PCA - Colored by estimated clusters (k={k})", fontsize=12)
-    ax.set_xlabel("PC1", fontsize=12)
-    ax.set_ylabel("PC2", fontsize=12)
-    ax.grid(visible=True, alpha=0.3)
-
-    # Set legend
-    handles, labels = scatter.legend_elements(prop="colors")
-    ax.legend(handles=handles, labels=labels, title="Cluster")
-
-    return fig, ax, cluster_labels
-  else:
-    # Initiate a two-panel plot
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
-
-    # Plot coloring by known group
-    group_map = {g: i for i, g in enumerate(data[group_var].cat.categories)}
-    group_colors = [group_map[grp] for grp in data[group_var].values]
-    if group_fill_color is not None:
-      color_list = [group_fill_color[group_map[grp]] for grp in data[group_var].values]
-      g1 = ax[0].scatter(
-        pc_data["PC1"],
-        pc_data["PC2"],
-        c=color_list,
-        s=50,
-        alpha=0.8,
-        edgecolor="k",
-      )
-    else:
-      g1 = ax[0].scatter(
-        pc_data["PC1"],
-        pc_data["PC2"],
-        c=group_colors,
-        cmap="tab10",
-        s=50,
-        alpha=0.8,
-        edgecolor="k",
-      )
-
-    # Set plot title and formatting of first subplot
-    group_var_format = group_var[0].upper() + group_var[1:].replace("_", " ")
-    ax[0].set_title(f"PCA - Colored by {group_var_format}", fontsize=12)
-    ax[0].set_xlabel("PC1", fontsize=12)
-    ax[0].set_ylabel("PC2", fontsize=12)
-    ax[0].grid(visible=True, alpha=0.3)
-
-    # Set legend for known groups
-    if group_fill_color is not None:
-      # If group_fill_color is provided, use it to create legend handles
-      handles = [
-        plt.Line2D(
-          [0],
-          [0],
-          marker="o",
-          color="w",
-          label=grp,
-          markerfacecolor=group_fill_color[group_map[grp]],
-        )
-        for grp in data[group_var].cat.categories
-      ]
-      labels = data[group_var].cat.categories.tolist()
-    else:
-      # Otherwise, use the default legend elements
-      handles, labels = g1.legend_elements(prop="colors")
-
-    ax[0].legend(handles=handles, labels=labels, title=group_var_format)
-
-    # Plot coloring by estimated cluster
-    g2 = ax[1].scatter(
-      pc_data["PC1"],
-      pc_data["PC2"],
-      c=pc_data["cluster"],
-      cmap="tab10",
-      s=50,
-      alpha=0.8,
-      edgecolor="k",
-    )
-
-    # Set plot title and formatting of second subplot
-    ax[1].set_title(f"PCA - Colored by estimated clusters (k={k})", fontsize=12)
-    ax[1].set_xlabel("PC1", fontsize=12)
-    ax[1].set_ylabel("PC2", fontsize=12)
-    ax[1].grid(visible=True, alpha=0.3)
-
-    # Set legend for estimated clusters
-    handles, labels = g2.legend_elements(prop="colors")
-    ax[1].legend(handles=handles, labels=labels, title="Cluster")
-
-    # Create contingency table of known groups vs estimated clusters
-    contingency = pd.crosstab(
-      pd.Series(data[group_var].values, name=group_var),
-      pd.Series(cluster_labels, name="KMeansCluster"),
-    )
-    return fig, ax, cluster_labels, contingency

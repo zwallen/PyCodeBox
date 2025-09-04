@@ -44,22 +44,12 @@ def fisher_exact_by_strata(var, strata, data):
   import pandas as pd
   from scipy import stats
 
-  # Check `var` is categorical
+  # Make `var` categorical if not already
   if not (data[var].dtype.name == "category"):
-    print(
-      "The variable supplied to `var` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[var] = pd.Categorical(data[var])
 
-  # Check `strata` is categorical
+  # Make `strata` categorical if not already
   if not (data[strata].dtype.name == "category"):
-    print(
-      "The variable supplied to `strata` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[strata] = pd.Categorical(data[strata])
 
   # Create empty dictionary to store results
@@ -157,17 +147,8 @@ def linear_reg_by_strata(var, strata, data):
   import pandas as pd
   from scipy import stats
 
-  # Check `var` is numerical
-  if data[var].dtype.kind not in ["i", "f"]:
-    raise ValueError("The variable supplied to `var` must be numeric.")
-
-  # Check `strata` is categorical
+  # Make `strata` categorical if not already
   if not (data[strata].dtype.name == "category"):
-    print(
-      "The variable supplied to `strata` was not a pandas Categorical variable. \
-      Converting this variable to pandas Categorical with no specific ordering of \
-      categories."
-    )
     data[strata] = pd.Categorical(data[strata])
 
   # Create empty dictionary to store results

@@ -45,7 +45,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.2.1 (current)
+Version 0.2.2 (current)
+* Added new function `random_forest_classifier` to perform training and testing of a
+random forest classifier on a dataset with user-specified parameters.
+* Added corresponding testing of function.
+* Added new sub-package `learn` to contain machine learning related functions and
+moved the `pca_kmeans_clustering` function into this new sub-package.
+
+Version 0.2.1
 * Fixed sizing issues with `stratified_coef_w_ci` plotting function
 
 Version 0.2.0
