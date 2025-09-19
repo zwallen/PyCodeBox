@@ -16,6 +16,7 @@ def random_forest_classifier(
   y,
   random_state=1234,
   test_size=0.2,
+  scale=False,
   n_estimators=100,
   criterion="gini",
   class_weight="balanced_subsample",
@@ -45,6 +46,8 @@ def random_forest_classifier(
       Controls the randomness of the estimator (default: 1234).
   test_size : float, optional
       Proportion of the dataset to include in the test split (default: 0.2).
+  scale : bool, optional
+      Whether to scale the data prior to training the model (default: False).
   n_estimators : int, optional
       Number of trees in the forest (default: 100).
   criterion : {"gini", "entropy", "log_loss"}, optional
@@ -80,6 +83,7 @@ def random_forest_classifier(
   -------
   dict
       A dictionary containing the following values:
+      - 'scaler': The fitted StandardScaler object used for standardizing model data.
       - 'selected_features': Selected features from feature selection.
       - 'rfecv': The RFECV (Recursive Feature Elimination with Cross-Validation) object.
       - 'param_search': The RandomizedSearchCV object after hyperparameter tuning.
@@ -92,6 +96,7 @@ def random_forest_classifier(
   import pandas as pd
   import matplotlib.pyplot as plt
   import seaborn as sns
+  from sklearn.preprocessing import StandardScaler
   from sklearn.ensemble import RandomForestClassifier
   from sklearn.model_selection import (
     train_test_split,
@@ -111,6 +116,14 @@ def random_forest_classifier(
   x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=test_size, random_state=random_state
   )
+
+  # Scale data to mean of 0 and standard deviation of 1 if requested
+  if scale:
+    scaler = StandardScaler().fit(x_train)
+    x_train = pd.DataFrame(scaler.transform(x_train), columns=list(x.columns))
+    x_test = pd.DataFrame(scaler.transform(x_test), columns=list(x.columns))
+  else:
+    scaler = None
 
   # Set random forest parameters
   rf = RandomForestClassifier(
@@ -273,6 +286,7 @@ def random_forest_classifier(
 
   # Return training and testing components/reports and final trained model
   return {
+    "scaler" : scaler,
     "selected_features": selected_features,
     "rfecv": rfecv,
     "param_search": search,

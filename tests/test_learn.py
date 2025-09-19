@@ -46,6 +46,7 @@ def test_random_forest_classifier_full_params():
     y,
     random_state=42,
     test_size=0.3,
+    scale=True,
     n_estimators=200,
     criterion="entropy",
     class_weight=None,
@@ -62,6 +63,7 @@ def test_random_forest_classifier_full_params():
     out_file_prefix="test_full_",
   )
   assert isinstance(result, dict)
+  assert result["scaler"] is not None
   assert result["model"].n_estimators == 200 or result["model"].n_estimators in [
     100,
     200,

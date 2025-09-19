@@ -45,7 +45,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.2.2 (current)
+Version 0.2.3 (current)
+* Added new parameter `scale` to `random_forest_classifier` function to give the option to standardize input training data before training and testing.
+
+Version 0.2.2
 * Added new function `random_forest_classifier` to perform training and testing of a
 random forest classifier on a dataset with user-specified parameters.
 * Added corresponding testing of function.
