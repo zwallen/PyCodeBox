@@ -30,7 +30,8 @@ def random_forest_classifier(
   cv=5,
   n_jobs=-1,
   roc_curve_col="black",
-  out_file_prefix=None,
+  output_images=True,
+  out_file_prefix="",
 ):
   """
   Trains and evaluates a random forest classifier using the provided feature matrix `x`
@@ -75,9 +76,12 @@ def random_forest_classifier(
       Number of jobs to run in parallel (default: -1, use all available cores).
   roc_curve_col : str, optional
       Color for the ROC curve plot (default: "black").
-  out_file_prefix : str or None, optional
+  output_images : bool, optional
+      Whether to generate image files for plots of chosen feature importances, 
+      probability threshold optimization, and roc curve (default: True).
+  out_file_prefix : str, optional
       Prefix for output files. If None, no prefix is given to output files and they are
-      saved to the current directory (default: None).
+      saved to the current directory (default: blank string).
 
   Returns
   -------
@@ -90,6 +94,8 @@ def random_forest_classifier(
       - 'optimal_pred_threshold': The optimal probability threshold for classification.
       - 'confusion_matrix': The confusion matrix of the final model.
       - 'performance_report': The classification report as a DataFrame.
+      - 'plots': Dictionary of generated plots - `feature_importance`, `prob_threshold`,
+        and `roc_curv`.
       - 'model': The trained RandomForestClassifier model.
   """
   import numpy as np
@@ -204,13 +210,14 @@ def random_forest_classifier(
   )
 
   # Plot feature importances
-  plt.figure(figsize=(6, len(selected_features) * 0.25))
   feature_importances = pd.DataFrame(
     {
       "Feature": selected_features.str.replace("_rank", ""),
       "Importance": trained_mod.feature_importances_,
     }
   ).sort_values("Importance", ascending=False)
+
+  fig_feat_imp, ax_feat_imp = plt.subplots(figsize=(6, len(selected_features) * 0.25))
   sns.barplot(
     data=feature_importances,
     x="Importance",
@@ -218,37 +225,46 @@ def random_forest_classifier(
     hue="Feature",
     palette="viridis",
     legend=False,
+    ax=ax_feat_imp,
   )
-  plt.xlabel("Feature importance score", fontsize=10)
-  plt.title(
+  ax_feat_imp.set_xlabel("Feature importance score", fontsize=10)
+  ax_feat_imp.set_title(
     "Selected features and their importance scores\nfrom RFECV and RandomizedSearchCV",
     fontsize=10,
   )
-  plt.grid(visible=True, alpha=0.3)
-  plt.tight_layout()
-  plt.savefig(f"{out_file_prefix}feature_importance.jpg", dpi=600)
-  plt.close()
+  ax_feat_imp.grid(visible=True, alpha=0.3)
+  fig_feat_imp.tight_layout()
+  if output_images:
+    fig_feat_imp.savefig(f"{out_file_prefix}feature_importance.jpg", dpi=600)
+  plt.close(fig_feat_imp)
 
   # Plot classification metrics vs thresholds
-  plt.figure(figsize=(8, 5))
-  plt.plot(thresholds, f1s, label=f"F1 ({y.cat.categories[1]})")
-  plt.plot(thresholds, precisions, label=f"Precision ({y.cat.categories[1]})")
-  plt.plot(thresholds, recalls, label=f"Recall ({y.cat.categories[1]})")
-  plt.plot(thresholds, accuracies, label="Accuracy")
-  plt.axvline(
+  fig_prob_thresh, ax_prob_thresh = plt.subplots(figsize=(8, 5))
+  ax_prob_thresh.plot(thresholds, f1s, label=f"F1 ({y.cat.categories[1]})")
+  ax_prob_thresh.plot(
+    thresholds,
+    precisions,
+    label=f"Precision ({y.cat.categories[1]})",
+  )
+  ax_prob_thresh.plot(thresholds, recalls, label=f"Recall ({y.cat.categories[1]})")
+  ax_prob_thresh.plot(thresholds, accuracies, label="Accuracy")
+  ax_prob_thresh.axvline(
     x=optimal_pred_thresh,
     color="grey",
     linestyle="--",
     label=f"Max pan-metric average ({optimal_pred_thresh:.2f})",
   )
-  plt.xlabel("Probability thresholds")
-  plt.ylabel("Metric value")
-  plt.title("Probability thresholds vs classification performance metrics")
-  plt.legend(framealpha=1)
-  plt.grid(alpha=0.3)
-  plt.tight_layout()
-  plt.savefig(f"{out_file_prefix}prob_vs_metrics.jpg", dpi=600)
-  plt.close()
+  ax_prob_thresh.set_xlabel("Probability thresholds")
+  ax_prob_thresh.set_ylabel("Metric value")
+  ax_prob_thresh.set_title(
+    "Probability thresholds vs classification performance metrics"
+  )
+  ax_prob_thresh.legend(framealpha=1)
+  ax_prob_thresh.grid(alpha=0.3)
+  fig_prob_thresh.tight_layout()
+  if output_images:
+    fig_prob_thresh.savefig(f"{out_file_prefix}prob_vs_metrics.jpg", dpi=600)
+  plt.close(fig_prob_thresh)
 
   # Generate predictions based on optimal probability threshold
   y_pred = np.where(
@@ -266,33 +282,44 @@ def random_forest_classifier(
   report_df = pd.DataFrame(classification_report(y_test, y_pred, output_dict=True)).T
 
   # Plot ROC curve
+  fig_roc, ax_roc = plt.subplots()
   RocCurveDisplay.from_estimator(
     trained_mod,
     x_test[selected_features],
     y_test,
     color=roc_curve_col,
     linewidth=5,
+    ax=ax_roc,
   )
-  plt.plot([0, 1], [0, 1], color="grey", linestyle="--")
-  plt.xlim([-0.01, 1.0])
-  plt.ylim([0.0, 1.05])
-  plt.xlabel("False positive rate")
-  plt.ylabel("True positive rate")
-  plt.grid(visible=True, alpha=0.3)
-  plt.legend(loc="lower right")
-  plt.tight_layout()
-  plt.savefig(f"{out_file_prefix}ROC_AUC.jpg", dpi=600)
-  plt.close()
+  ax_roc.plot([0, 1], [0, 1], color="grey", linestyle="--")
+  ax_roc.set_xlim([-0.01, 1.0])
+  ax_roc.set_ylim([0.0, 1.05])
+  ax_roc.set_xlabel("False positive rate")
+  ax_roc.set_ylabel("True positive rate")
+  ax_roc.grid(visible=True, alpha=0.3)
+  ax_roc.legend(loc="lower right")
+  fig_roc.tight_layout()
+  if output_images:
+    fig_roc.savefig(f"{out_file_prefix}ROC_AUC.jpg", dpi=600)
+  plt.close(fig_roc)
+
+  # Collect plots in a dictionary
+  plots = {
+    "feature_importance": fig_feat_imp,
+    "prob_threshold": fig_prob_thresh,
+    "roc_curve": fig_roc,
+  }
 
   # Return training and testing components/reports and final trained model
   return {
-    "scaler" : scaler,
+    "scaler": scaler,
     "selected_features": selected_features,
     "rfecv": rfecv,
     "param_search": search,
     "confusion_matrix": confusion_mat,
     "performance_report": report_df,
     "optimal_pred_threshold": optimal_pred_thresh,
+    "plots": plots,
     "model": trained_mod,
   }
 

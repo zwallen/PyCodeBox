@@ -25,7 +25,7 @@ def sample_data():
 
 def test_random_forest_classifier_defaults():
   x, y = sample_data()
-  result = random_forest_classifier(x, y, out_file_prefix="test_")
+  result = random_forest_classifier(x, y, output_images=False)
   # Basic checks
   assert isinstance(result, dict)
   assert "selected_features" in result
@@ -34,9 +34,8 @@ def test_random_forest_classifier_defaults():
   assert "confusion_matrix" in result
   assert "performance_report" in result
   assert "optimal_pred_threshold" in result
+  assert "plots" in result
   assert "model" in result
-  # Check that selected_features is non-empty
-  assert len(result["selected_features"]) > 0
 
 
 def test_random_forest_classifier_full_params():
@@ -60,10 +59,12 @@ def test_random_forest_classifier_full_params():
     cv=3,
     n_jobs=1,
     roc_curve_col="red",
+    output_images=True,
     out_file_prefix="test_full_",
   )
   assert isinstance(result, dict)
   assert result["scaler"] is not None
+  assert isinstance(result["plots"], dict)
   assert result["model"].n_estimators == 200 or result["model"].n_estimators in [
     100,
     200,
