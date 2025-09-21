@@ -45,7 +45,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-Version 0.2.3 (current)
+Version 0.2.4 (current)
+* Added saving of plots to the output and new parameter `output_images` to `random_forest_classifier` function to give the option to not output plot images (helps when trying to run the function in parallel or if you need to modify the plots before outputting images).
+
+Version 0.2.3
 * Added new parameter `scale` to `random_forest_classifier` function to give the option to standardize input training data before training and testing.
 
 Version 0.2.2
