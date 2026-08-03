@@ -1,0 +1,27 @@
+[project]
+name = "pycodebox"
+version = "1.0.0.1"
+description = "A collection of Python functions for commonly performed actions in computational biology and data science projects."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+  {name = "Zachary Wallen", email = "zachary.d.wallen@gmail.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+dependencies = [
+  "pandas>=1.0",
+  "numpy>=1.20"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/PyCodeBox"
+"Source" = "https://github.com/PyCodeBox/PyCodeBox"
+
+[build-system]
+requires = ["setuptools>=61.0","wheel"]
+build-backend = "setuptools.build_meta"

@@ -13,6 +13,7 @@
 #
 # =============================================================================
 
+
 def summary_stat_table(data, cols):
     """
     Create a formatted patient characteristics table.

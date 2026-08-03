@@ -1,3 +1,21 @@
+Metadata-Version: 2.4
+Name: pycodebox
+Version: 1.0.0.1
+Summary: A collection of Python functions for commonly performed actions in computational biology and data science projects.
+Author-email: Zachary Wallen <zachary.d.wallen@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/PyCodeBox
+Project-URL: Source, https://github.com/PyCodeBox/PyCodeBox
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pandas>=1.0
+Requires-Dist: numpy>=1.20
+Dynamic: license-file
+
 # PyCodeBox
 
 A collection of Python functions for commonly performed actions in computational biology and data science projects.
