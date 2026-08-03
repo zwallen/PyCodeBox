@@ -1,6 +1,6 @@
 [project]
 name = "pycodebox"
-version = "1.0.0.1"
+version = "1.0.0.2"
 description = "A collection of Python functions for commonly performed actions in computational biology and data science projects."
 readme = "README.md"
 requires-python = ">=3.8"
