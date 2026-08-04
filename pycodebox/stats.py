@@ -2,21 +2,14 @@
 # Statistical Utility Functions
 #
 # Description:
-# Collection of statistical and table-generation utility functions for data
-# analysis and reporting.
-#
-# Author: Zachary Wallen
-#
-# Dependencies:
-#     - pandas
-#     - numpy
+# Collection of statistical utility functions for data analysis and reporting.
 #
 # =============================================================================
 
 
 def summary_stat_table(data, cols):
     """
-    Create a formatted patient characteristics table.
+    Create a formatted cohort characteristics table.
 
     For categorical variables, counts and percentages are reported for each
     category. For numeric variables, the mean and standard deviation are
