@@ -18,7 +18,7 @@ def primary_site_icd_map(data):
 
     Parameters
     ----------
-    data : list[str]
+    data : pandas.Series
         Input list of ICD-10-CM or ICD-O-3 topography codes.
 
     Returns
@@ -32,8 +32,13 @@ def primary_site_icd_map(data):
     subcategories will be ignored if provided.
     """
 
+    import pandas as pd
+
+    # Make sure input is pandas series
+    data = pd.Series(data)
+
     # Extract main ICD code groupings if subcategories were given
-    if data.str.contains("."):
+    if data.str.contains(".").any():
         data = data.str.partition(".")[0]
 
     # Define ICD to primary site/cancer type dictionary
