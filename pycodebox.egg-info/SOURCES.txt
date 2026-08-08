@@ -2,6 +2,7 @@ LICENSE
 README.md
 pyproject.toml
 pycodebox/oncology.py
+pycodebox/plot.py
 pycodebox/stats.py
 pycodebox.egg-info/PKG-INFO
 pycodebox.egg-info/SOURCES.txt

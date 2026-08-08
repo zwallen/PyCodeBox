@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: pycodebox
-Version: 1.0.0.5
+Version: 1.0.0.6
 Summary: A collection of Python functions for commonly performed actions in computational biology and data science projects.
 Author-email: Zachary Wallen <zachary.d.wallen@gmail.com>
 License: MIT
