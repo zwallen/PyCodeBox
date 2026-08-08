@@ -1,5 +1,8 @@
 # PyCodeBox
 
+[![Publish pycodebox to PyPI](https://github.com/zwallen/PyCodeBox/actions/workflows/publish.yml/badge.svg)](https://github.com/zwallen/PyCodeBox/actions/workflows/publish.yml)
+![PyPI Version](https://img.shields.io/pypi/v/pycodebox)
+
 A collection of Python functions for commonly performed actions in computational biology and data science projects.
 
 Install from PyPI using:
