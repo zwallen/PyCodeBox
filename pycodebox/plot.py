@@ -57,6 +57,10 @@ def histogram(
     from matplotlib.gridspec import GridSpec
     from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
+    # Get color list if not specified
+    if color_list is None:
+        color_list = plt.cm.Dark2.colors
+
     # Create plotting areas
     if boxplot:
         # Set figure
@@ -81,9 +85,14 @@ def histogram(
         ax_box = None
 
     # Perform plotting
+    step_size = math.ceil(max(data[variable]) * 0.03)
     if groups is not None:
-        # Get list of colors based on number of groups
-        color_list = plt.cm.Dark2.colors[: len(data[groups].unique())]
+        # Give error if more than 3 groups
+        if len(data[groups].unique()) > 3:
+            raise ValueError(
+                "More than 3 groups is not recommended for this plot."
+                "See `box_violin_plot` function for a more appropriate plot."
+            )
 
         # Plot histograms
         for group, color in zip(data[groups].unique(), color_list):
@@ -91,7 +100,6 @@ def histogram(
             df_sub = data[data[groups] == group]
 
             # Plot histogram
-            step_size = math.ceil(max(df_sub[variable]) * 0.03)
             ax.hist(
                 df_sub[variable],
                 bins=range(
@@ -110,7 +118,6 @@ def histogram(
 
     else:
         # Plot histogram
-        step_size = math.ceil(max(data[variable]) * 0.03)
         ax.hist(
             data[variable],
             bins=range(
@@ -126,6 +133,7 @@ def histogram(
     if boxplot:
         if groups is not None:
             # Get data for boxplot(s)
+            # (needs to have data for both groups in one)
             box_data = [
                 data.loc[data[groups] == group, variable].dropna()
                 for group in data[groups].unique()
@@ -216,6 +224,7 @@ def kaplan_meier(
     x_label="Time",
     y_label="Overall Survival",
     plot_title=None,
+    color_list=None,
     figsize=(6.5, 4.5),
 ):
     """
@@ -255,6 +264,9 @@ def kaplan_meier(
         Label for the y-axis.
     plot_title : str or None, default=None
         Title for the plot.
+    color_list : list[str], default=None
+        List of matplotlib recognized colors. If left None, `Dark2` palette
+        will be used.
     figsize : tuple[float, float], default=(6.5, 4.5)
         Width and height of the matplotlib figure in inches.
 
@@ -285,6 +297,10 @@ def kaplan_meier(
             .replace({positive_event: "1", negative_event: "0"})
             .astype("int")
         )
+
+    # Get color list if not specified
+    if color_list is None:
+        color_list = plt.cm.Dark2.colors
 
     # Start plot
     fig, ax = plt.subplots(figsize=figsize)
