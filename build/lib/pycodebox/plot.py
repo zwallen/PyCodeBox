@@ -57,6 +57,23 @@ def histogram(
     from matplotlib.gridspec import GridSpec
     from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
+    # Remove missing values
+    if groups is not None:
+        data = data.dropna(subset=[variable, groups])
+    else:
+        data = data.dropna(subset=[variable])
+    
+    # Give error if more than 3 groups
+    if groups is not None and len(data[groups].unique()) > 3:
+        raise ValueError(
+            "More than 3 groups is not recommended for this plot."
+            "See `box_violin_plot` function for a more appropriate plot."
+        )
+    
+    # Get color list if not specified
+    if color_list is None:
+        color_list = plt.cm.Dark2.colors
+
     # Create plotting areas
     if boxplot:
         # Set figure
@@ -81,22 +98,19 @@ def histogram(
         ax_box = None
 
     # Perform plotting
+    step_size = math.ceil(max(data[variable]) * 0.03)
     if groups is not None:
-        # Get list of colors based on number of groups
-        color_list = plt.cm.Dark2.colors[: len(data[groups].unique())]
-
         # Plot histograms
         for group, color in zip(data[groups].unique(), color_list):
             # Subset data for group
             df_sub = data[data[groups] == group]
 
             # Plot histogram
-            step_size = math.ceil(max(df_sub[variable]) * 0.03)
             ax.hist(
                 df_sub[variable],
                 bins=range(
-                    min(df_sub[variable]),
-                    max(df_sub[variable]) + step_size,
+                    int(min(df_sub[variable])),
+                    int(max(df_sub[variable])) + step_size,
                     step_size,
                 ),
                 color=color,
@@ -110,12 +124,11 @@ def histogram(
 
     else:
         # Plot histogram
-        step_size = math.ceil(max(data[variable]) * 0.03)
         ax.hist(
             data[variable],
             bins=range(
-                min(data[variable]),
-                max(data[variable]) + step_size,
+                int(min(data[variable])),
+                int(max(data[variable])) + step_size,
                 step_size,
             ),
             color="grey",
@@ -126,6 +139,7 @@ def histogram(
     if boxplot:
         if groups is not None:
             # Get data for boxplot(s)
+            # (needs to have data for both groups in one)
             box_data = [
                 data.loc[data[groups] == group, variable].dropna()
                 for group in data[groups].unique()
@@ -137,7 +151,7 @@ def histogram(
                 vert=False,
                 patch_artist=True,
                 widths=0.6,
-                label=data[groups].unique(),
+                tick_labels=list(data[groups].unique()),
             )
             ax_box.set_yticks([])
 
@@ -214,8 +228,9 @@ def kaplan_meier(
     at_risk_table=False,
     logrank=False,
     x_label="Time",
-    y_label="Overall Survival",
+    y_label="Survival Probability",
     plot_title=None,
+    color_list=None,
     figsize=(6.5, 4.5),
 ):
     """
@@ -255,6 +270,9 @@ def kaplan_meier(
         Label for the y-axis.
     plot_title : str or None, default=None
         Title for the plot.
+    color_list : list[str], default=None
+        List of matplotlib recognized colors. If left None, `Dark2` palette
+        will be used.
     figsize : tuple[float, float], default=(6.5, 4.5)
         Width and height of the matplotlib figure in inches.
 
@@ -282,9 +300,14 @@ def kaplan_meier(
     if not (positive_event == 1 and negative_event == 0):
         df_surv[event] = (
             df_surv[event]
+            .astype("str")
             .replace({positive_event: "1", negative_event: "0"})
             .astype("int")
         )
+
+    # Get color list if not specified
+    if color_list is None:
+        color_list = plt.cm.Dark2.colors
 
     # Start plot
     fig, ax = plt.subplots(figsize=figsize)
@@ -318,9 +341,9 @@ def kaplan_meier(
                 alpha=0.7,
             )
 
-            # Set lower axis limits
+            # Set axis limits
             ax.set_xlim(left=0)
-            ax.set_ylim(bottom=0)
+            ax.set_ylim(top=1, bottom=0)
 
             # Anchor legend
             ax.legend(loc="lower left")
@@ -341,9 +364,9 @@ def kaplan_meier(
             alpha=0.7,
         )
 
-        # Set lower axis limits
+        # Set axis limits
         ax.set_xlim(left=0)
-        ax.set_ylim(bottom=0)
+        ax.set_ylim(top=1, bottom=0)
 
     # Add median survival time indicators to plot
     # NOTE: if median survival time not reached, then medians come back
@@ -351,10 +374,20 @@ def kaplan_meier(
     for kmf in kmf_list:
         median = kmf.median_survival_time_
         ax.vlines(
-            x=median, ymin=0, ymax=0.5, linestyle="--", color="black", alpha=0.7
+            x=median,
+            ymin=0,
+            ymax=0.5,
+            linestyle="--",
+            color="black",
+            alpha=0.5,
         )
         ax.hlines(
-            y=0.5, xmin=0, xmax=median, linestyle="--", color="black", alpha=0.7
+            y=0.5,
+            xmin=0,
+            xmax=median,
+            linestyle="--",
+            color="black",
+            alpha=0.5,
         )
 
     # Add at risk counts below curves if requested
@@ -378,7 +411,7 @@ def kaplan_meier(
 
         # Add results to plot
         plt.text(
-            s=f"Log-rank: x2 = {lrtest.test_statistic:.1f}, {p_label}",
+            s=f"Log-rank: x2 = {lrtest.test_statistic:.1f}; {p_label}",
             x=0.5,
             y=0.9,
             fontsize=10,

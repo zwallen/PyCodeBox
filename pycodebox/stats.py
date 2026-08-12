@@ -44,9 +44,11 @@ def summary_stat_table(data, cols):
         non_missing = sum(data[col].notna())
 
         # If data type is category or string, get N (%)
-        if data[col].dtype in ["category", "str"]:
-            # Convert variable to category if string
-            if data[col].dtype == "str":
+        if isinstance(
+            data[col].dtype, pd.CategoricalDtype
+        ) or pd.api.types.is_string_dtype(data[col]):
+            # Make sure variable is a category
+            if ~isinstance(data[col].dtype, pd.CategoricalDtype):
                 data[col] = data[col].astype("category")
 
             # Get number of blanks needed for total column
@@ -68,7 +70,7 @@ def summary_stat_table(data, cols):
             )
 
         # If data type is integer or float, get mean and standard deviation
-        if data[col].dtype in ["int", "float"]:
+        if pd.api.types.is_numeric_dtype(data[col]):
             # Calculate mean and standard deviation
             mean = round(np.mean(data[col]), 1)
             sd = round(np.std(data[col]), 1)

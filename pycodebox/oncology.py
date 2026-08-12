@@ -80,7 +80,7 @@ def primary_site_icd_map(data):
         "Anus/Anal Canal": [
             "C21",  # Anus and anal canal
         ],
-        "Liver": [
+        "Liver/Intrahepatic Bile Duct": [
             "C22",  # Liver and intrahepatic bile duct
         ],
         "Gallbladder/Biliary Tract": [
